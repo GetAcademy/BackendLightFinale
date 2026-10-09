@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup></PropertyGroup>
+  
+  <ItemGroup><ProjectReference Include="../KareBooking.V1.Core/KareBooking.V1.Core.csproj" /></ItemGroup>
+</Project>

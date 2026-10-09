@@ -1,0 +1,30 @@
+@host = http://localhost:5103
+@customer = ada@example.test
+@start = 2030-01-14T12:00:00%2B01:00
+# Replace this with id returned by POST /bookings before running cancellation.
+@bookingId = 00000000-0000-0000-0000-000000000000
+
+### Quote. Monday Jan 14; deadline is Friday Jan 11, 2030, at 16:00 Europe/Oslo.
+GET {{host}}/quote?start={{start}}&hours=2&customerEmail={{customer}}
+
+### Create (copy response id into bookingId above)
+POST {{host}}/bookings
+Content-Type: application/json
+
+{
+  "customerEmail": "ada@example.test",
+  "start": "2030-01-14T12:00:00+01:00",
+  "hours": 2
+}
+
+### Inspect state
+GET {{host}}/bookings
+
+### Get one booking
+GET {{host}}/bookings/{{bookingId}}
+
+### Cancel once; a repeated request is rejected without a second refund.
+POST {{host}}/bookings/{{bookingId}}/cancel
+
+### Invalid time: expect 400
+GET {{host}}/quote?start=2030-01-14T12:37:00%2B01:00&hours=1&customerEmail={{customer}}
