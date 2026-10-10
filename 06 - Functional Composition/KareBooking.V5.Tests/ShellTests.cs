@@ -50,23 +50,6 @@ public sealed class ShellTests
         Assert.That(effects.Calls, Is.Empty);
     }
 
-    [Test]
-    public async Task Two_simultaneous_requests_cannot_book_the_same_slot()
-    {
-        var repo = new BlockingReadRepository();
-        var clock = new FixedClock(start.AddDays(-10));
-        var effects = new RecordingEffects();
-        var service = new BookingService(repo, clock, effects, new BookingEventHandler(effects, effects), zone);
-        var command = new BookCommand("ada@example.test", start, 2);
-        var first = service.BookAsync(command);
-        await repo.ReadObserved.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        var second = service.BookAsync(command);
-        repo.ReleaseReads.SetResult();
-        var results = await Task.WhenAll(first, second).WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.That(results.Count(r => r.IsSuccess), Is.EqualTo(1));
-        Assert.That(repo.Saves, Is.EqualTo(1));
-    }
-
     [TestCase(168, 800)]
     [TestCase(1, 0)]
     public async Task The_shell_only_calls_refund_when_money_is_owed(int hoursBefore, decimal expected)

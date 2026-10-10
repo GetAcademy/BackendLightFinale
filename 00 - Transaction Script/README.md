@@ -3,33 +3,41 @@
 ## Hva er likt?
 
 Vi beholder det konkrete bookingcaset og de kjente teknikkene Minimal API, service,
-repository og DI. Det finnes ikke et separat Core-prosjekt.
+repository og DI. V0 har API, Core og Tests, akkurat som V1.
+`KareBooking.V0.Core` inneholder `Booking`, `BookingCalendar`, `BookCommand` og `Result<T>`.
+Denne Core-boksen er relativt anemisk: et prosjektnavn gir ikke i seg selv en rik domenemodell.
 
 ## Hva endret vi?
 
-`BookingService.GetQuoteAsync` og `BookInsideGateAsync` inneholder bevisst de samme reglene:
-ukedag, klokkeslett, hele timer, frist, overlapp og pris. `CancelAsync` kjenner refusjonsreglene.
+`BookingService.GetQuoteAsync` og `BookAsync` bruker den private hjelpemetoden
+`EvaluateBookingAsync` for e-post, ukedag, klokkeslett, hele timer, varighet, frist, overlapp og pris.
+Extract Method gir enkel intern gjenbruk. `CancelAsync` kjenner avbestillings- og refusjonsreglene.
 Etter beslutningen utfører tjenesten lagring, fake betaling, e-post og audit.
 `BookingCalendar` er bare en liten kalenderhjelper for riktig uke-/sommertidsberegning.
 
 ## Hvilket problem prøver dette å løse?
 
-Transaction Script er ikke i seg selv «feil». For enkle applikasjoner kan dette være en god løsning.
-Problemet oppstår når domenelogikken vokser og blir repetert/spredt.
-Prøv å endre ekstratimeprisen: både tilbud og bestilling må oppdateres.
-Gjentakelsen er realistisk når to use cases først utvikles hver for seg.
+V0 er en legitim og ryddig Transaction Script-løsning. For et lite domene kan dette være et
+godt og enklere valg. Prøv å endre ekstratimeprisen: én endring i hjelpemetoden er nok.
+Spørsmålet videre er hvem som eier forretningskunnskapen. `BookingService` kjenner nesten
+alle reglene samtidig som den orkestrerer I/O; Core-typene tar få beslutninger selv.
+
+> If the business rules are reusable and important enough to have names, should they merely be private helper methods inside an application service, or do they belong to the domain model itself?
 
 ## Hva koster løsningen?
 
 Pluss: direkte kontrollflyt, få typer, lett å følge en request.
-Minus: samme regel må vedlikeholdes flere steder; tjenesten blander beslutninger og I/O.
+Minus: tjenesten har ansvar for både forretningsbeslutninger og I/O.
 `IClock` er med allerede her fordi frist/refusjon må testes kontrollert. Andre porter representerer faktisk I/O.
 
 ## Kode å vise
 
-Start i `KareBooking.V0.Api/Application/BookingService.cs` og sammenlign quote/book.
-Se `KareBooking.V0.Tests/BookingRulesTests.cs` og `ShellTests.cs`.
-Ikke refaktorer bort gjentakelsen før du har sammenlignet med V1.
+Start i `KareBooking.V0.Api/Application/BookingService.cs`: følg quote/book til den felles
+hjelpemetoden og les deretter cancellation. Sammenlign med V1s `BookingService`,
+`KareSchedule` og `Booking`. V0 kjenner reglene i tjenesten; V1 kjenner dem i domenemodellen.
+Se `KareBooking.V0.Tests/BookingRulesTests.cs`, `QuoteAndBookingTests.cs` og `ShellTests.cs`.
 
-Se [rot-README](../README.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
+Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
 Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.
+V0–V5 gjør ikke hele read-decide-write-flyten concurrency-safe. I en ekte persistent applikasjon
+brukes transaksjoner og optimistic concurrency fra tidligere økter i Backend Light.

@@ -2,7 +2,7 @@
 
 | Idé | Spørsmålet den svarer på | Eksempel i Kåre-caset | Kostnad |
 | --- | --- | --- | --- |
-| Transaction Script | Hvordan organiserer vi en use case? | BookAsync inneholder en sammenhengende prosedyre | Regler kan gjentas mellom use cases |
+| Transaction Script | Hvordan organiserer vi en use case? | BookingService deler regler via en privat hjelpemetode og orkestrerer I/O | Tjenesten eier både forretningsbeslutninger og I/O |
 | Rich Domain Model / DDD | Hvordan modellerer vi virksomheten og beskytter business rules? | Booking.Cancel, TimeSlot og KareSchedule | Flere konsepter og grenser å lære |
 | Onion/Clean-lignende retning | Hvor peker dependencies? | Api → Core; Core kjenner ikke Api | Flere prosjekter/grensesnitt når de trengs |
 | Functional Core / Imperative Shell | Hvor plasserer vi side effects og I/O? | Shell leser/henter tid; BookingWorkflow tar vanlig data | Flere eksplisitte input/output og snapshots |
@@ -19,7 +19,12 @@ V4/V5 illustrerer kombinasjonen: API-et avhenger av Core. Core uttrykker virksom
 TimeSlot, Money, Booking og beslutninger. Shell håndterer I/O, og den rene grensen tar data
 inn og gir data ut. Dette krever verken mange ringer eller en full Clean Architecture-mal.
 
-V1 har allerede I/O-fri Core og innoverpekende prosjektavhengighet. Likevel bruker den mutable
+V0 har allerede Core og innoverpekende prosjektavhengighet, men Core-typene er relativt anemiske.
+Intern gjenbruk er løst med Extract Method i `BookingService`. V1 flytter eierskapet til reglene:
+`KareSchedule` kjenner bookingregler, tilgjengelighet og pris; `Booking` kjenner overlap,
+egen tilstand og cancellation/refund. Tjenesten leser, henter nåtid/id, kaller domenet og utfører I/O.
+
+V1 har I/O-fri Core. Likevel bruker den mutable
 entities og objekter for å organisere kunnskapen. V4 legger en eksplisitt, deterministisk
 workflow-grense og immutable snapshots til dette. Vi unngår å fremstille V1 som dårlig bare
 for å gjøre V4 attraktiv.
@@ -36,3 +41,5 @@ den valgfrie sidegrenen bruker vanlige objekter for å gjøre rootens ansvar let
 Velg etter problemet: få enkle use cases kan passe godt som Transaction Script; mange delte
 regler gjør en rik modell attraktiv; mange rene beregninger gjør en funksjonell grense nyttig.
 Ingen av valgene fjerner behovet for transaksjoner og samtidighetskontroll rundt ekte lagring.
+V0–V5s in-memory teaching examples gjør ikke hele read-decide-write-flyten concurrency-safe.
+Bruk transaksjoner og optimistic concurrency fra tidligere Backend Light-økter ved ekte lagring.

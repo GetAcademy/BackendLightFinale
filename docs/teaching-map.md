@@ -5,7 +5,7 @@ Ikke presenter hver nye teknikk som en automatisk forbedring.
 
 | Version | Problem experienced | New concept | Main code to show | Suggested discussion question |
 | --- | --- | --- | --- | --- |
-| V0, steg 00 | Pris/validering gjentas i quote og book | Transaction Script | V0.Api/Application/BookingService.cs | Når er dette nok? Hva må endres om ekstratimen blir dyrere? |
+| V0, steg 00 | Tjenesten eier regler og orkestrerer I/O; Extract Method gir allerede intern gjenbruk | Transaction Script | V0.Api/Application/BookingService.cs; V0.Core/Booking.cs | V0 er ryddig. Bør navngitte regler bo i private hjelpemetoder eller i domenemodellen? |
 | V1, steg 01 | Forretningskunnskap bor i use case-tjenester | Rich Domain Model | V1.Core/KareSchedule.cs, Booking.cs | Hvilke beslutninger tilhører domenet, og hvilke tilhører orkestreringen? |
 | V2, steg 02 | Primitive verdier tillater ugyldig tid og utydelig penger | Value Objects | V2.Core/TimeSlot.cs, Money.cs; ValueObjectTests | Hvilke regler kan TimeSlot garantere, og hvilke trenger kalenderen? |
 | V3, steg 03 | Tjenesten kjenner hver følgehendelse | Domain Events | V3.Core/DomainEvents.cs; V3.Api/Application/BookingEventHandler.cs | Er SendEmail et forretningsfaktum? Hva om audit feiler? |
@@ -18,7 +18,7 @@ Stiene i tabellen er forkortet; prosjektene ligger i de navngitte solution folde
 
 ## Forslag til rekkefølge
 
-1. V0 → V1: endre en prisregel og sammenlign ansvarsplassering.
+1. V0 → V1: endre en prisregel og sammenlign ansvarsplassering. Begge gjenbruker reglene internt.
 2. V1 → V2: forsøk start 12:37 og diskuter representerbar state.
 3. V2 → V3: følg booking til e-post og skil fakta fra reaksjon.
 4. Pure Functions: 10–15 minutter med tid, tilfeldighet og `with`.
@@ -29,6 +29,13 @@ Stiene i tabellen er forkortet; prosjektene ligger i de navngitte solution folde
 La studentene kjøre `BookingRulesTests` først. Regeltestene gjentas bevisst i hver versjon og
 gir sammenlignbare eksempler på helg, arbeidstid, frist, pris, overlapp og refusjon.
 ShellTests dekker I/O-reaksjonene; rene domenetester bruker ingen I/O-mocks.
+
+V0s `GetQuoteAsync` og `BookAsync` deler `EvaluateBookingAsync`; `CancelAsync` bestemmer refusjon.
+I V1 ligger disse beslutningene i `KareSchedule` og `Booking`, mens tjenesten orkestrerer.
+Spør hva V1 forbedrer når V0 allerede er ryddig. Transaction Script kan fortsatt passe et lite domene.
+
+V0–V5 beskytter ikke hele read-decide-write-flyten mot concurrent writes. Knytt ekte lagring
+til tidligere økter om transaksjoner og optimistic concurrency. Steg 90 beholder stale-snapshot-demonstrasjonen.
 
 Undervis ikke CQRS og Event Sourcing som ferdig kode. Bruk [videre-lesning](where-to-go-next.md)
 til å gi begrepene et konkret feste i det kjente caset.

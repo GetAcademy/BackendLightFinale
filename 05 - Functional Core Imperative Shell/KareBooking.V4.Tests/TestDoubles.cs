@@ -25,23 +25,3 @@ public sealed class CountingRepository : IBookingRepository
     public Task<Booking?> GetByIdAsync(Guid id) => inner.GetByIdAsync(id);
     public Task SaveAsync(Booking booking) { Saves++; return inner.SaveAsync(booking); }
 }
-
-// Freeze the first read before save, so the concurrency test really interleaves requests.
-public sealed class BlockingReadRepository : IBookingRepository
-{
-    private readonly InMemoryBookingRepository inner = new();
-    public TaskCompletionSource ReadObserved { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    public TaskCompletionSource ReleaseReads { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    public int Saves { get; private set; }
-
-    public async Task<IReadOnlyList<Booking>> GetAllAsync()
-    {
-        var snapshot = await inner.GetAllAsync();
-        ReadObserved.TrySetResult();
-        await ReleaseReads.Task;
-        return snapshot;
-    }
-
-    public Task<Booking?> GetByIdAsync(Guid id) => inner.GetByIdAsync(id);
-    public Task SaveAsync(Booking booking) { Saves++; return inner.SaveAsync(booking); }
-}

@@ -56,10 +56,10 @@ events/effect-plan i en durable outbox i samme transaksjon som state hvis leveri
 robust. Dette er diskusjonspunkter, ikke skjult implementerte egenskaper. Kjøring av domain
 events gjør ikke viktig synkron betalingskonsistens automatisk trygg.
 
-I V0–V5 serialiserer en singleton BookingService read-decide-save med SemaphoreSlim i én
-prosess. Repository returnerer kopier (eller immutable snapshots), så en domeinemutasjon
-ikke endrer lagret state før SaveAsync. Dette erstatter ikke databasetransaksjon eller
-distribuert concurrency. Et quote er bare et øyeblikksbilde og reserverer ingen tid.
+V0–V5 fokuserer på domenemodellering og arkitektur og gjør ikke hele read-decide-write-flyten
+concurrency-safe. Repository returnerer kopier (eller immutable snapshots), så en domenemutasjon
+ikke endrer lagret state før SaveAsync. Ved ekte lagring brukes transaksjoner og optimistic
+concurrency fra tidligere Backend Light-økter. Et quote er bare et øyeblikksbilde og reserverer ingen tid.
 
 Aggregate-siden bruker version på hele rootsnapshotet og atomisk TrySaveAsync. Konflikt
 returneres før eksterne calls. Den har samme forenklede betalings-/leveringsmodell etter save.

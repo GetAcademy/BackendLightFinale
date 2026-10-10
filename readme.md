@@ -194,12 +194,13 @@ Det finnes ikke ett felles domain-library som alle versjoner deler. Litt duplise
 
 # 00 – Transaction Script
 
-**Problem:** Forretningsreglene ligger i use case-koden og begynner å bli gjentatt.
+**Spørsmål:** Hvem bør eie forretningsreglene når application service også orkestrerer I/O?
 
 Prosjekter:
 
 ```text
 KareBooking.V0.Api
+KareBooking.V0.Core
 KareBooking.V0.Tests
 ```
 
@@ -213,11 +214,14 @@ Her bruker vi teknikker studentene allerede kjenner:
 - interfaces
 - testbare I/O-adapters
 
-`BookingService.GetQuoteAsync()` og `BookAsync()` inneholder bevisst mange av de samme reglene.
+`BookingService.GetQuoteAsync()` og `BookAsync()` deler validering, tilgjengelighet og pris
+gjennom den private hjelpemetoden `EvaluateBookingAsync`. Vi har allerede brukt Extract Method.
 
-Dette er ikke laget som «dårlig kode».
+V0 er en legitim, ryddig Transaction Script-løsning. Core inneholder relativt anemiske typer;
+`BookingService` eier nesten all forretningskunnskap og orkestrerer I/O.
 
-Transaction Script kan være en god løsning for en enkel applikasjon. Problemet blir tydelig når domenekunnskap vokser og samme regel må vedlikeholdes flere steder.
+Transaction Script kan være et godt og enklere valg for et lite domene. V1 utforsker om viktige,
+navngitte regler bør ha sitt hjem i domenemodellen.
 
 **Start her:**
 
@@ -241,7 +245,8 @@ KareBooking.V1.Core
 KareBooking.V1.Tests
 ```
 
-Forretningskunnskap flyttes inn i Core.
+Forretningskunnskap flyttes inn i Core. V0s `BookingService` kjenner reglene; i V1 kjenner
+domenemodellen reglene og `BookingService` orkestrerer. Begge har allerede intern regelgjenbruk.
 
 Blant annet får vi:
 
@@ -807,6 +812,11 @@ State ligger i minnet og forsvinner når API-prosessen restartes.
 
 Dette er bevisst: undervisningen skal fokusere på domain modeling, programmeringsstil og arkitektur – ikke oppsett av eksterne tjenester.
 
+V0–V5 fokuserer på domenemodellering og arkitektur. In-memory-implementasjonene gjør ikke
+hele read-decide-write-flyten concurrency-safe og løser ikke concurrent writes på produksjonsnivå.
+I en ekte persistent applikasjon brukes transaksjoner og optimistic concurrency fra tidligere
+økter i Backend Light. Optional Aggregate Root beholder sin egen demonstrasjon av stale snapshots.
+
 ---
 
 # Tester
@@ -842,7 +852,7 @@ Blant annet testes:
 Ved siste fullstendige verifikasjon:
 
 ```text
-378 / 378 tester bestod
+372 / 372 tester bestod (10. oktober 2026)
 0 skipped
 ```
 
@@ -953,7 +963,7 @@ Blant annet:
 - state + payment + email er ikke gjort distribuert atomisk
 - det finnes ingen outbox
 - det finnes ingen autentisering
-- hovedversjonene løser ikke distribuert concurrency
+- V0–V5 gjør ikke hele read-decide-write-flyten concurrency-safe
 - Aggregate Root-versjonen bruker en enkel versjon på snapshotet for å demonstrere optimistic concurrency
 
 Forenklingene er bevisste.

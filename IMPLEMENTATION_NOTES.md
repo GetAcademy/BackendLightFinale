@@ -2,8 +2,8 @@
 
 ## Opprettet
 
-Én Visual Studio-solution med åtte ekte Solution Folders og 23 prosjekter: sju Minimal API-er,
-seks selvstendige Core-biblioteker, to konsoller og åtte NUnit-testprosjekter.
+Én Visual Studio-solution med åtte ekte Solution Folders og 24 prosjekter: sju Minimal API-er,
+sju selvstendige Core-biblioteker, to konsoller og åtte NUnit-testprosjekter.
 Alle hovedsteg implementerer GetQuote, Book og Cancel med de samme forretningsreglene.
 Det finnes `.http`-fil og launch profile for hvert API, rot-/steg-README-er, undervisningskart,
 arkitektursammenligning, actions-as-data og videre-lesning om CQRS/Event Sourcing.
@@ -15,6 +15,9 @@ arkitektursammenligning, actions-as-data og videre-lesning om CQRS/Event Sourcin
   xUnit etter brukerens eksplisitte oppdatering. Ingen domene-/functional-frameworks.
 - API-prosjektet inneholder application og infrastructure, for å begrense antall prosjekter.
   Core har ingen I/O-porter. Ingen felles domene-library eller lenkede kildefiler mellom versjoner.
+- V0 har også Core, med Booking, BookingCalendar, BookCommand og Result<T> i namespace KareBooking.V0.
+  BookingService eier reglene; GetQuoteAsync og BookAsync deler den private EvaluateBookingAsync.
+  V1 flytter kunnskapen til KareSchedule og Booking. Transaction Script kan fortsatt passe et lite domene.
 - V4/V5 refererer til Functional Core/Composition. Pure Functions er et separat steg 04.
 - Tid er DateTimeOffset og eksplisitt Europe/Oslo-regelsett. Ukestart er mandag; fredag kl. 16
   inkluderer grensen. Refusjon bruker faktisk forløpt tid (168/48 timer), ikke datoer alene.
@@ -52,34 +55,39 @@ Live klokke brukes; testene har faste verdier og bruker ikke eksterne tjenester.
 
 In-memory state, enkel e-postvalidering, alltid vellykket fake betaling og synkron event-dispatch.
 Ingen event store, message bus, outbox, saga eller autentisering; ingen produksjonsgaranti for
-atomisk save+payment eller durable levering. Shells i hovedsporet serialiserer writes i én prosess.
+atomisk save+payment eller durable levering. V0–V5 gjør ikke hele read-decide-write-flyten
+concurrency-safe; bruk transaksjoner og optimistic concurrency fra tidligere Backend Light-økter ved ekte lagring.
 Aggregate-siden demonstrerer optimistisk concurrency med version på snapshotet.
-Den første versjonens gjentakelse og duplisert kode/tester mellom versjoner er pedagogisk tilsiktet.
+Selvstendig kode og gjentatte regeltester mellom versjoner gjør sammenligningen enklere.
+Samtidighetstesten og BlockingReadRepository er fjernet fra V0–V5. V0s QuoteAndBookingTests
+beskriver konsistent validering, pris og tilgjengelighet, uten å beskrive implementasjonen som duplisert.
 Labens JSON eksponerer enkle domenedata; det er ingen omfattende DTO-/mapping-stack.
 
 ## Verifikasjon
 
-Verifisert 9. oktober 2026 med .NET SDK 10.0.401:
+Verifisert 10. oktober 2026 med .NET SDK 10.0.401:
 
-- `dotnet build`: alle 23 prosjekter bygger, 0 feil og 0 advarsler.
-- `dotnet test --logger trx --results-directory TestResults`: **378 av 378 NUnit-tester grønne**,
+- `dotnet build BackendLight.ArchitectureLab.sln`: alle 24 prosjekter bygger, 0 feil og 0 advarsler.
+- `dotnet test BackendLight.ArchitectureLab.sln --no-build --no-restore --logger trx --results-directory TestResults`: **372 av 372 NUnit-tester grønne**,
   ingen skipped. Testresultatene ligger lokalt i git-ignorert `TestResults/`.
-- Begge konsollprogrammer er kjørt og viser de forventede eksemplene.
-- Alle sju API-er er startet og kontrollert over HTTP: quote/pris, create, overlappavvisning,
-  bookingoversikt, hent booking, cancel/refusjon, gjentatt cancel, frigjort tid, ugyldig
-  klokkeslett, brøkdelstimer i JSON og ukjent id. Prosessene er stoppet etter kontrollen.
-- Solutionen har åtte faktiske Solution Folders med alle 23 prosjekter riktig nested.
-  Referanser holder seg innen hvert steg. Namespaces, NUnit-pakker, I/O-fri funksjonell Core,
-  sju `.http`-filer og lenker i lab-dokumentasjonen er kontrollert.
+- Alle sju `.http`-filer er kontrollert konseptuelt mot routes og uendret request-kontrakt.
+  Endpoints, JSON-typer, I/O-porter, IClock og Europe/Oslo-registreringen er beholdt.
+- Solutionen har åtte faktiske Solution Folders med alle 24 prosjekter riktig nested.
+  Alle 23 project references finnes og holder seg innen hvert steg. V0 API og Tests refererer til V0 Core.
+- Ingen SemaphoreSlim, gate-hjelpemetoder eller BlockingReadRepository finnes igjen i hovedsporet.
+  Vanlige overlap-tester og hele Optional Aggregate Root-grenen er beholdt.
+- Pedagogisk kontroll: V0 deler regler internt, men tjenesten tar beslutningene. V1s tjeneste
+  orkestrerer KareSchedule og Booking, som eier booking-, overlap- og cancellation/refund-reglene.
+  Ingen nye patterns eller use cases er innført. Build-/testartefakter er git-ignorert.
 
 | Testprosjekt | Bestått |
 | --- | ---: |
-| V0 | 61 |
-| V1 | 44 |
-| V2 | 51 |
-| V3 | 52 |
+| V0 | 60 |
+| V1 | 43 |
+| V2 | 50 |
+| V3 | 51 |
 | Pure Functions | 7 |
-| V4 Functional Core | 53 |
-| V5 Composition | 57 |
+| V4 Functional Core | 52 |
+| V5 Composition | 56 |
 | Optional Aggregate Root | 53 |
-| **Totalt** | **378** |
+| **Totalt** | **372** |

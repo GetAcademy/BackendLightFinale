@@ -64,6 +64,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.Aggregates.Api"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.Aggregates.Tests", "90 - Optional Aggregate Root\KareBooking.Aggregates.Tests\KareBooking.Aggregates.Tests.csproj", "{FE2F0B6F-407B-4D3E-AE17-279CA9EC65F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V0.Core", "00 - Transaction Script\KareBooking.V0.Core\KareBooking.V0.Core.csproj", "{F8512E9D-E78B-42AE-8791-3275D0A332D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,10 @@ Global
 		{FE2F0B6F-407B-4D3E-AE17-279CA9EC65F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE2F0B6F-407B-4D3E-AE17-279CA9EC65F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE2F0B6F-407B-4D3E-AE17-279CA9EC65F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8512E9D-E78B-42AE-8791-3275D0A332D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8512E9D-E78B-42AE-8791-3275D0A332D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8512E9D-E78B-42AE-8791-3275D0A332D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8512E9D-E78B-42AE-8791-3275D0A332D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2683BC02-FDAE-4A11-9531-276F92D25C3D} = {0536FF9F-D227-4FA1-A1CA-2683191AF36B}
@@ -187,5 +193,6 @@ Global
 		{86BD075D-3977-4FFF-A6E1-8A251797C734} = {3C2AC793-FF95-4F05-B01F-B6A4F807B3B7}
 		{A7F3F744-A5F4-4C27-B5AB-540295E00B30} = {3C2AC793-FF95-4F05-B01F-B6A4F807B3B7}
 		{FE2F0B6F-407B-4D3E-AE17-279CA9EC65F8} = {3C2AC793-FF95-4F05-B01F-B6A4F807B3B7}
+		{F8512E9D-E78B-42AE-8791-3275D0A332D7} = {0536FF9F-D227-4FA1-A1CA-2683191AF36B}
 	EndGlobalSection
 EndGlobal

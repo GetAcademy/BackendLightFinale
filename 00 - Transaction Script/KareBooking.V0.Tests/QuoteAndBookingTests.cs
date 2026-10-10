@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace KareBooking.V0.Tests;
 
-public sealed class ScriptAgreementTests
+public sealed class QuoteAndBookingTests
 {
     [TestCase("2030-01-14T12:00:00+01:00", 1, "2030-01-11T16:00:00+01:00")]
     [TestCase("2030-01-14T12:00:00+01:00", 2, "2030-01-11T16:00:00+01:00")]
@@ -20,7 +20,7 @@ public sealed class ScriptAgreementTests
     [TestCase("2030-01-14T12:00:00+01:00", 1, "2030-01-11T16:00:00.0000001+01:00")]
     [TestCase("2030-01-18T12:00:00+01:00", 1, "2030-01-14T12:00:00+01:00")]
     [TestCase("2030-04-01T12:00:00+02:00", 1, "2030-03-29T16:00:00+01:00")]
-    public async Task Duplicated_quote_and_book_rules_agree(string startText, int hours, string nowText)
+    public async Task Quote_and_booking_have_consistent_validation_and_prices(string startText, int hours, string nowText)
     {
         var repository = new InMemoryBookingRepository();
         var effects = new RecordingEffects();
@@ -37,7 +37,7 @@ public sealed class ScriptAgreementTests
     }
 
     [Test]
-    public async Task Both_scripts_reject_overlap_and_accept_the_adjacent_slot()
+    public async Task Quote_and_booking_reject_overlap_and_accept_the_adjacent_slot()
     {
         var start = DateTimeOffset.Parse("2030-01-14T12:00:00+01:00");
         var repository = new InMemoryBookingRepository();

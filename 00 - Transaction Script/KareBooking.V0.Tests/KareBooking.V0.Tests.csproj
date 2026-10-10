@@ -8,5 +8,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup><ProjectReference Include="../KareBooking.V0.Api/KareBooking.V0.Api.csproj" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../KareBooking.V0.Api/KareBooking.V0.Api.csproj" />
+    <ProjectReference Include="../KareBooking.V0.Core/KareBooking.V0.Core.csproj" />
+  </ItemGroup>
 </Project>
