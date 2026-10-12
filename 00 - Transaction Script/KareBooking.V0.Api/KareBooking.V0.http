@@ -2,7 +2,7 @@
 @customer = ada@example.test
 @start = 2030-01-14T12:00:00%2B01:00
 # Replace this with id returned by POST /bookings before running cancellation.
-@bookingId = 00000000-0000-0000-0000-000000000000
+@bookingId = 73f7ac10-7e83-465f-8951-5a787022ceb6
 
 ### Quote. Monday Jan 14; deadline is Friday Jan 11, 2030, at 16:00 Europe/Oslo.
 GET {{host}}/quote?start={{start}}&hours=2&customerEmail={{customer}}
