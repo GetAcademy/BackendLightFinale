@@ -701,6 +701,17 @@ og er utviklet/verifisert med:
 .NET SDK 10.0.401
 ```
 
+Åpne `BackendLight.ArchitectureLab.sln` i **Visual Studio 2026 (18.x)** med
+arbeidsbelastningen **ASP.NET and web development** installert. Visual Studio 2022
+kan ikke laste prosjektene med denne SDK-en, selv om .NET 10 er installert.
+`global.json` krever SDK 10.0.401 eller en nyere patch i 10.0.4xx-serien.
+
+Hvis du får «The SDK 'Microsoft.NET.Sdk' specified could not be found» eller
+tilsvarende for `Microsoft.NET.Sdk.Web`, kontroller at du bruker Visual Studio
+2026. Hvis dobbeltklikk åpner feil versjon, start Visual Studio 2026 og åpne
+solutionen via **File → Open → Project/Solution**. Kontroller også installerte
+SDK-er med `dotnet --list-sdks`.
+
 Bygg alt:
 
 ```powershell
