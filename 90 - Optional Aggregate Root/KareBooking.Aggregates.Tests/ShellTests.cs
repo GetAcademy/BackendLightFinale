@@ -4,14 +4,13 @@ namespace KareBooking.Aggregates.Tests;
 
 public sealed class ShellTests
 {
-    private static readonly TimeZoneInfo zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo");
-    private static readonly DateTimeOffset start = DateTimeOffset.Parse("2030-01-14T12:00:00+01:00");
+    private static readonly DateTime start = DateTime.Parse("2030-01-14T12:00:00");
 
     [Test]
     public async Task A_stale_save_is_rejected_before_charge_email_or_audit()
     {
         var effects = new RecordingEffects();
-        var service = new BookingService(new AlwaysConflictingRepository(zone),
+        var service = new BookingService(new AlwaysConflictingRepository(),
             new FixedClock(start.AddDays(-14)), effects, effects, effects);
 
         var result = await service.BookAsync(new BookCommand("ada@example.test", start, 2));
@@ -26,7 +25,7 @@ public sealed class ShellTests
     [TestCase(1, 0)]
     public async Task Successful_root_save_precedes_effects_and_cancellation_refunds_once(int hoursBefore, decimal expected)
     {
-        var repository = new InMemoryScheduleRepository(zone);
+        var repository = new InMemoryScheduleRepository();
         var clock = new FixedClock(start.AddDays(-14));
         var effects = new RecordingEffects();
         var service = new BookingService(repository, clock, effects, effects, effects);
@@ -49,16 +48,16 @@ public sealed class ShellTests
         Assert.That((await repository.LoadAsync()).Version, Is.EqualTo(2));
     }
 
-    private sealed class AlwaysConflictingRepository(TimeZoneInfo businessZone) : IScheduleRepository
+    private sealed class AlwaysConflictingRepository() : IScheduleRepository
     {
         public Task<ScheduleSnapshot> LoadAsync() =>
-            Task.FromResult(new ScheduleSnapshot(new KareSchedule(businessZone), 0));
+            Task.FromResult(new ScheduleSnapshot(new KareSchedule(), 0));
         public Task<bool> TrySaveAsync(KareSchedule schedule, long expectedVersion) => Task.FromResult(false);
     }
 
-    private sealed class FixedClock(DateTimeOffset now) : IClock
+    private sealed class FixedClock(DateTime now) : IClock
     {
-        public DateTimeOffset Now { get; set; } = now;
+        public DateTime Now { get; set; } = now;
     }
 
     private sealed class RecordingEffects : IEmailSender, IPaymentGateway, IAuditLog

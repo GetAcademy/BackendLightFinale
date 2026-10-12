@@ -11,14 +11,14 @@ ikke domain events. Samme domeneevent kan utløse ulike effects i ulike applikas
 ## Variant A – implementert i V3, V4 og V5
 
 ```text
-Core: input → Result(state + domain events)
+DomainModel: input → Result(state + domain events)
 Shell: save state → fake payment/refund → dispatch events
 Handler: BookingCreated → email + audit
          BookingCancelled → email + audit
 ```
 
-Core returnerer altså fakta som data. Handleren tolker dem og utfører handlingene direkte.
-V4/V5 endrer ikke innsendt state og trenger alle nødvendige input (inklusive now, id og tidssone).
+DomainModel returnerer altså fakta som data. Handleren tolker dem og utfører handlingene direkte.
+V4/V5 endrer ikke innsendt state og trenger alle nødvendige input (inklusive now og id).
 Dette er valgt fordi det lar domenet uttrykke virksomheten uten å bestemme e-posttekst,
 audit-format eller adapter. Handleren er liten og eksplisitt, uten MediatR eller event bus.
 
@@ -61,5 +61,5 @@ concurrency-safe. Repository returnerer kopier (eller immutable snapshots), så 
 ikke endrer lagret state før SaveAsync. Ved ekte lagring brukes transaksjoner og optimistic
 concurrency fra tidligere Backend Light-økter. Et quote er bare et øyeblikksbilde og reserverer ingen tid.
 
-Aggregate-siden bruker version på hele rootsnapshotet og atomisk TrySaveAsync. Konflikt
+Aggregate-siden bruker version på hele rootsnapshotet og TrySaveAsync med sjekk av expectedVersion. Konflikt
 returneres før eksterne calls. Den har samme forenklede betalings-/leveringsmodell etter save.

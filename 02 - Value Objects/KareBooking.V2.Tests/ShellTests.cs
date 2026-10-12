@@ -1,12 +1,13 @@
+using KareBooking.V2.DomainModel;
+using KareBooking.V2.ApplicationServices;
+
 using NUnit.Framework;
 
 namespace KareBooking.V2.Tests;
 
-
 public sealed class ShellTests
 {
-    private static readonly TimeZoneInfo zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo");
-    private static readonly DateTimeOffset start = DateTimeOffset.Parse("2030-01-14T12:00:00+01:00");
+    private static readonly DateTime start = DateTime.Parse("2030-01-14T12:00:00");
 
     [Test]
     public async Task Booking_saves_charges_confirms_and_audits_then_cancellation_refunds_only_once()
@@ -14,7 +15,7 @@ public sealed class ShellTests
         var repo = new CountingRepository();
         var clock = new FixedClock(start.AddDays(-10));
         var effects = new RecordingEffects();
-        var service = new BookingService(repo, clock, effects, effects, effects, zone);
+        var service = new BookingService(repo, clock, effects, effects, effects);
         var booked = await service.BookAsync(new BookCommand("ada@example.test", start, 2));
         Assert.That(booked.IsSuccess, Is.True, booked.Error);
         Assert.That(repo.Saves, Is.EqualTo(1));
@@ -42,7 +43,7 @@ public sealed class ShellTests
         var repo = new CountingRepository();
         var clock = new FixedClock(start.AddDays(-10));
         var effects = new RecordingEffects();
-        var service = new BookingService(repo, clock, effects, effects, effects, zone);
+        var service = new BookingService(repo, clock, effects, effects, effects);
         Assert.That((await service.GetQuoteAsync(new BookCommand("ada@example.test", start, 2))).IsSuccess, Is.True);
         Assert.That((await service.BookAsync(new BookCommand("ada@example.test", start.AddMinutes(37), 2))).IsFailure, Is.True);
         Assert.That((await service.CancelAsync(Guid.NewGuid())).IsFailure, Is.True);
@@ -57,7 +58,7 @@ public sealed class ShellTests
         var repo = new CountingRepository();
         var clock = new FixedClock(start.AddDays(-10));
         var effects = new RecordingEffects();
-        var service = new BookingService(repo, clock, effects, effects, effects, zone);
+        var service = new BookingService(repo, clock, effects, effects, effects);
         var booking = await service.BookAsync(new BookCommand("ada@example.test", start, 2));
         effects.Calls.Clear();
         clock.Now = start.AddHours(-hoursBefore);

@@ -13,14 +13,12 @@ arkitektursammenligning, actions-as-data og videre-lesning om CQRS/Event Sourcin
 - .NET SDK 10.0.401 / net10.0, høyeste installerte stabile SDK. Ingen preview-avhengighet.
 - NUnit 4.3.2, NUnit3TestAdapter 5.0.0 og Microsoft.NET.Test.Sdk 17.14.1. NUnit erstatter
   xUnit etter brukerens eksplisitte oppdatering. Ingen domene-/functional-frameworks.
-- API-prosjektet inneholder application og infrastructure, for å begrense antall prosjekter.
-  Core har ingen I/O-porter. Ingen felles domene-library eller lenkede kildefiler mellom versjoner.
-- V0 har også Core, med Booking, BookingCalendar, BookCommand og Result<T> i namespace KareBooking.V0.
+- V0–V5 har Core/ApplicationServices, Core/DomainServices og Core/DomainModel. API inneholder HTTP, composition root og Infrastructure. Ingen felles domene-library eller lenkede kildefiler mellom versjoner.
+- V0 har også Core, med Booking, BookingCalendar, BookCommand og Result<T> i namespace KareBooking.V0.DomainModel.
   BookingService eier reglene; GetQuoteAsync og BookAsync deler den private EvaluateBookingAsync.
   V1 flytter kunnskapen til KareSchedule og Booking. Transaction Script kan fortsatt passe et lite domene.
 - V4/V5 refererer til Functional Core/Composition. Pure Functions er et separat steg 04.
-- Tid er DateTimeOffset og eksplisitt Europe/Oslo-regelsett. Ukestart er mandag; fredag kl. 16
-  inkluderer grensen. Refusjon bruker faktisk forløpt tid (168/48 timer), ikke datoer alene.
+- Alle tidspunkt er DateTime og lokal tid for Kåres virksomhet. Ukestart er mandag; fredag kl. 16 inkluderer grensen. Refusjon bruker differansen mellom lokale tidspunkt (168/48 timer). IClock beholdes; SystemClock bruker DateTime.Now.
 - Overlapp bruker halvåpne intervaller. Avbestilling etter start og gjentatt avbestilling avvises.
 - TimeSlot/Money er immutable records med private constructors og validering. Booking er class
   i den rike modellen og immutable record i de funksjonelle versjonene. Guid beholdes som id.
@@ -63,18 +61,25 @@ Samtidighetstesten og BlockingReadRepository er fjernet fra V0–V5. V0s QuoteAn
 beskriver konsistent validering, pris og tilgjengelighet, uten å beskrive implementasjonen som duplisert.
 Labens JSON eksponerer enkle domenedata; det er ingen omfattende DTO-/mapping-stack.
 
+## Struktur etter refaktorering
+
+V0–V5 har BookingService i Core/ApplicationServices og fem separate interface-filer i Core/DomainServices. V3–V5 har også BookingEventHandler i ApplicationServices. Domenetyper, BookCommand og Result ligger i DomainModel. V4 og V5 har identisk mappe- og filstruktur. Namespaces følger mappene; Core refererer ikke API.
+
+Optional Aggregate Root beholder sin eksisterende mappestruktur, siden mappeendringen gjelder V0–V5. Den bruker samme lokale DateTime-forenkling og et repository uten låsing, men beholder version, expectedVersion og TrySaveAsync. Stale-snapshot-testen er beholdt og bestått.
+
 ## Verifikasjon
 
-Verifisert 10. oktober 2026 med .NET SDK 10.0.401:
+Verifisert 12. oktober 2026 med .NET SDK 10.0.401:
 
-- `dotnet build BackendLight.ArchitectureLab.sln`: alle 24 prosjekter bygger, 0 feil og 0 advarsler.
-- `dotnet test BackendLight.ArchitectureLab.sln --no-build --no-restore --logger trx --results-directory TestResults`: **372 av 372 NUnit-tester grønne**,
+- `dotnet build BackendLight.ArchitectureLab.sln --no-restore -m:1`: alle 24 prosjekter bygger, 0 feil og 0 advarsler.
+- `dotnet test BackendLight.ArchitectureLab.sln --no-restore -m:1 --logger trx --results-directory TestResults`: **372 av 372 NUnit-tester grønne**,
   ingen skipped. Testresultatene ligger lokalt i git-ignorert `TestResults/`.
-- Alle sju `.http`-filer er kontrollert konseptuelt mot routes og uendret request-kontrakt.
-  Endpoints, JSON-typer, I/O-porter, IClock og Europe/Oslo-registreringen er beholdt.
+  Testhost-forbindelsen fikk timeout i sandboxen; hele testsuiten kjørte grønt utenfor sandboxen.
+- Alle sju `.http`-filer er kontrollert mot routes, lokal DateTime og datoer uten soneangivelse.
+  Endpoints og IClock er beholdt; datoene sendes uten soneangivelse.
 - Solutionen har åtte faktiske Solution Folders med alle 24 prosjekter riktig nested.
   Alle 23 project references finnes og holder seg innen hvert steg. V0 API og Tests refererer til V0 Core.
-- Ingen SemaphoreSlim, gate-hjelpemetoder eller BlockingReadRepository finnes igjen i hovedsporet.
+- Repositoryene er enkle teaching fakes uten låsing eller andre synkroniseringsmekanismer.
   Vanlige overlap-tester og hele Optional Aggregate Root-grenen er beholdt.
 - Pedagogisk kontroll: V0 deler regler internt, men tjenesten tar beslutningene. V1s tjeneste
   orkestrerer KareSchedule og Booking, som eier booking-, overlap- og cancellation/refund-reglene.

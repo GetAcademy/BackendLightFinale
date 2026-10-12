@@ -1,23 +1,25 @@
-namespace KareBooking.V5;
+using KareBooking.V5.DomainModel;
+using KareBooking.V5.DomainServices;
+
+namespace KareBooking.V5.Infrastructure;
 
 public sealed class InMemoryBookingRepository : IBookingRepository
 {
     private readonly Dictionary<Guid, Booking> bookings = [];
-    private readonly object gate = new();
 
     public Task<IReadOnlyList<Booking>> GetAllAsync()
     {
-        lock (gate) return Task.FromResult<IReadOnlyList<Booking>>(bookings.Values.Select(b => b.Copy()).ToArray());
+        return Task.FromResult<IReadOnlyList<Booking>>(bookings.Values.Select(b => b.Copy()).ToArray());
     }
 
     public Task<Booking?> GetByIdAsync(Guid id)
     {
-        lock (gate) return Task.FromResult(bookings.TryGetValue(id, out var booking) ? booking.Copy() : null);
+        return Task.FromResult(bookings.TryGetValue(id, out var booking) ? booking.Copy() : null);
     }
 
     public Task SaveAsync(Booking booking)
     {
-        lock (gate) bookings[booking.Id] = booking.Copy();
+        bookings[booking.Id] = booking.Copy();
         return Task.CompletedTask;
     }
 }

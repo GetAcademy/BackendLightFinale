@@ -2,12 +2,11 @@ namespace KareBooking.Aggregates;
 
 public static class BookingCalendar
 {
-    // The business timezone is explicit input, including in the functional core.
-    public static DateTimeOffset Deadline(DateTimeOffset start, TimeZoneInfo businessZone)
+    // Booking closes on Friday at 16:00 in the week before the appointment.
+    public static DateTime Deadline(DateTime start)
     {
-        var local = TimeZoneInfo.ConvertTime(start, businessZone);
-        var daysSinceMonday = ((int)local.DayOfWeek + 6) % 7;
-        var friday = local.Date.AddDays(-daysSinceMonday - 3).AddHours(16);
-        return new DateTimeOffset(friday, businessZone.GetUtcOffset(friday));
+        var daysSinceMonday = ((int)start.DayOfWeek + 6) % 7;
+        var friday = start.Date.AddDays(-daysSinceMonday - 3).AddHours(16);
+        return friday;
     }
 }

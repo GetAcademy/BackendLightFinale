@@ -1,5 +1,7 @@
 # V5 – Functional Composition
 
+Alle hovedversjonene bruker samme Onion-struktur: `Api → Core`. Core har `ApplicationServices`, `DomainServices` og `DomainModel`. API har HTTP, composition root og konkrete implementasjoner i `Infrastructure`.
+
 ## Hva er likt?
 
 V4s funksjonsgrense, immutable state, events, I/O-shell og regler beholdes.
@@ -29,8 +31,8 @@ Bruk navngitte steg og behold enkel if-kode der det er mer lesbart.
 
 ## Kode å vise
 
-Åpne `KareBooking.V5.Core/Result.cs`, `BookingWorkflow.cs`, `ResultTests.cs` og konsollens `Program.cs`.
+Åpne `KareBooking.V5.Core/DomainModel/Result.cs`, `BookingWorkflow.cs`, `ResultTests.cs` og konsollens `Program.cs`.
 Sammenlign bare Book-metoden med V4 først. Se hvor kontrollflyten stopper ved opptatt tid.
 
-Se [rot-README](../README.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
+Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
 Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.

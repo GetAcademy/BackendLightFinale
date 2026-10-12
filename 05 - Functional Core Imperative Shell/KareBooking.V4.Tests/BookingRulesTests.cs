@@ -1,41 +1,41 @@
+using KareBooking.V4.DomainModel;
+
 using NUnit.Framework;
 
 namespace KareBooking.V4.Tests;
 
-
 public sealed class BookingRulesTests
 {
-    private static readonly TimeZoneInfo zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo");
-    private static readonly DateTimeOffset monday = DateTimeOffset.Parse("2030-01-14T12:00:00+01:00");
-    private static readonly DateTimeOffset early = monday.AddDays(-14);
+    private static readonly DateTime monday = DateTime.Parse("2030-01-14T12:00:00");
+    private static readonly DateTime early = monday.AddDays(-14);
 
-    private static async Task<Result<Money>> Quote(BookCommand command, DateTimeOffset now,
+    private static async Task<Result<Money>> Quote(BookCommand command, DateTime now,
         params Booking[] existing)
     {
-        return await Task.FromResult(BookingWorkflow.GetQuote(command, existing, now, zone));
+        return await Task.FromResult(BookingWorkflow.GetQuote(command, existing, now));
     }
-    private static async Task<Booking> Create(DateTimeOffset start, int hours = 2)
+    private static async Task<Booking> Create(DateTime start, int hours = 2)
     {
-        var result = BookingWorkflow.Book(new BookCommand("ada@example.test", start, hours), [], start.AddDays(-14), Guid.NewGuid(), zone);
+        var result = BookingWorkflow.Book(new BookCommand("ada@example.test", start, hours), [], start.AddDays(-14), Guid.NewGuid());
         return await Task.FromResult(result.Value.Booking);
     }
-    private static async Task<Result<Money>> Cancel(Booking booking, DateTimeOffset now)
+    private static async Task<Result<Money>> Cancel(Booking booking, DateTime now)
     {
         var result = BookingWorkflow.Cancel(booking, now);
         return await Task.FromResult(result.IsSuccess ? Result<Money>.Success(result.Value.Refund)
             : Result<Money>.Failure(result.Error));
     }
 
-    [TestCase("2030-01-19T12:00:00+01:00", TestName = "Booking_on_saturday_is_rejected")]
-    [TestCase("2030-01-20T12:00:00+01:00", TestName = "Booking_on_sunday_is_rejected")]
-    [TestCase("2030-01-14T11:00:00+01:00", TestName = "Booking_before_noon_is_rejected")]
-    [TestCase("2030-01-14T16:00:00+01:00", TestName = "Booking_starting_at_closing_is_rejected")]
-    [TestCase("2030-01-14T12:37:00+01:00", TestName = "Start_must_be_a_whole_clock_hour")]
-    [TestCase("2030-01-14T12:00:01+01:00", TestName = "Seconds_are_not_a_whole_clock_hour")]
-    [TestCase("2030-01-14T12:00:00.0000001+01:00", TestName = "Fractional_seconds_are_rejected")]
+    [TestCase("2030-01-19T12:00:00", TestName = "Booking_on_saturday_is_rejected")]
+    [TestCase("2030-01-20T12:00:00", TestName = "Booking_on_sunday_is_rejected")]
+    [TestCase("2030-01-14T11:00:00", TestName = "Booking_before_noon_is_rejected")]
+    [TestCase("2030-01-14T16:00:00", TestName = "Booking_starting_at_closing_is_rejected")]
+    [TestCase("2030-01-14T12:37:00", TestName = "Start_must_be_a_whole_clock_hour")]
+    [TestCase("2030-01-14T12:00:01", TestName = "Seconds_are_not_a_whole_clock_hour")]
+    [TestCase("2030-01-14T12:00:00.0000001", TestName = "Fractional_seconds_are_rejected")]
     public async Task Invalid_start_is_rejected(string start)
     {
-        var result = await Quote(new BookCommand("ada@example.test", DateTimeOffset.Parse(start), 1), early);
+        var result = await Quote(new BookCommand("ada@example.test", DateTime.Parse(start), 1), early);
         Assert.That(result.IsFailure, Is.True);
     }
 
@@ -88,16 +88,16 @@ public sealed class BookingRulesTests
         Assert.That((await Quote(new BookCommand("ada@example.test", monday, 2), early, existing)).IsSuccess, Is.True);
     }
 
-    [TestCase("2030-01-14T12:00:00+01:00", "2030-01-11T16:00:00+01:00")]
-    [TestCase("2030-01-18T12:00:00+01:00", "2030-01-11T16:00:00+01:00")]
-    [TestCase("2027-01-01T12:00:00+01:00", "2026-12-25T16:00:00+01:00")]
-    [TestCase("2030-04-01T12:00:00+02:00", "2030-03-29T16:00:00+01:00")]
-    [TestCase("2030-10-28T12:00:00+01:00", "2030-10-25T16:00:00+02:00")]
-    public async Task Deadline_is_friday_in_the_previous_week_including_year_and_DST_boundaries(string startText, string deadlineText)
+    [TestCase("2030-01-14T12:00:00", "2030-01-11T16:00:00")]
+    [TestCase("2030-01-18T12:00:00", "2030-01-11T16:00:00")]
+    [TestCase("2027-01-01T12:00:00", "2026-12-25T16:00:00")]
+    [TestCase("2030-04-01T12:00:00", "2030-03-29T16:00:00")]
+    [TestCase("2030-10-28T12:00:00", "2030-10-25T16:00:00")]
+    public async Task Deadline_is_friday_in_the_previous_week_including_year_and_month_boundaries(string startText, string deadlineText)
     {
-        var start = DateTimeOffset.Parse(startText);
-        var deadline = DateTimeOffset.Parse(deadlineText);
-        Assert.That(BookingCalendar.Deadline(start, zone), Is.EqualTo(deadline));
+        var start = DateTime.Parse(startText);
+        var deadline = DateTime.Parse(deadlineText);
+        Assert.That(BookingCalendar.Deadline(start), Is.EqualTo(deadline));
         var command = new BookCommand("ada@example.test", start, 1);
         Assert.That((await Quote(command, deadline.AddTicks(-1))).IsSuccess, Is.True);
         Assert.That((await Quote(command, deadline)).IsSuccess, Is.True, "Exactly 16:00 is allowed.");
@@ -109,8 +109,8 @@ public sealed class BookingRulesTests
         Assert.That((await Quote(new BookCommand("ada@example.test", monday.AddDays(4), 1), monday)).IsFailure, Is.True);
 
     [Test]
-    public async Task UTC_input_is_interpreted_in_Norwegian_business_time() =>
-        Assert.That((await Quote(new BookCommand("ada@example.test", monday.ToUniversalTime(), 1), early)).IsSuccess, Is.True);
+    public async Task Local_business_time_is_used_directly() =>
+        Assert.That((await Quote(new BookCommand("ada@example.test", monday, 1), early)).IsSuccess, Is.True);
 
     [TestCase(240, 800)] [TestCase(168, 800, TestName = "Exactly_seven_days_before_gives_full_refund")]
     [TestCase(167.999, 700)] [TestCase(72, 700, TestName = "Cancellation_three_days_before_keeps_100_fee")]
@@ -125,12 +125,12 @@ public sealed class BookingRulesTests
     }
 
     [Test]
-    public async Task DST_does_not_turn_167_elapsed_hours_into_seven_days()
+    public async Task Seven_local_days_before_gives_full_refund()
     {
-        var start = DateTimeOffset.Parse("2030-04-01T12:00:00+02:00");
+        var start = DateTime.Parse("2030-04-01T12:00:00");
         var booking = await Create(start);
-        var refund = await Cancel(booking, DateTimeOffset.Parse("2030-03-25T12:00:00+01:00"));
-        Assert.That(refund.Value.Amount, Is.EqualTo(700m));
+        var refund = await Cancel(booking, DateTime.Parse("2030-03-25T12:00:00"));
+        Assert.That(refund.Value.Amount, Is.EqualTo(800m));
     }
 
     [TestCase(0)] [TestCase(-1)]

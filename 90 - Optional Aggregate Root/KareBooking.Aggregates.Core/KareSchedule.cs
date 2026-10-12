@@ -3,14 +3,13 @@ namespace KareBooking.Aggregates;
 public sealed class KareSchedule
 {
     private readonly List<Booking> bookings;
-    private readonly TimeZoneInfo businessZone;
     public IReadOnlyList<Booking> Bookings => bookings.Select(b => b.Copy()).ToList().AsReadOnly();
 
-    public KareSchedule(TimeZoneInfo businessZone) : this([], businessZone) { }
-    private KareSchedule(IEnumerable<Booking> bookings, TimeZoneInfo businessZone)
-    { this.bookings = bookings.Select(b => b.Copy()).ToList(); this.businessZone = businessZone; }
+    public KareSchedule() : this([]) { }
+    private KareSchedule(IEnumerable<Booking> bookings)
+    { this.bookings = bookings.Select(b => b.Copy()).ToList(); }
 
-    public Result<Money> GetQuote(BookCommand command, DateTimeOffset now)
+    public Result<Money> GetQuote(BookCommand command, DateTime now)
     {
         if (string.IsNullOrWhiteSpace(command.CustomerEmail) || !command.CustomerEmail.Contains('@'))
             return Result<Money>.Failure("A customer email is required.");
@@ -19,18 +18,18 @@ public sealed class KareSchedule
             : Result<Money>.Failure(slot.Error);
     }
 
-    private Result<TimeSlot> ValidateSlot(BookCommand command, DateTimeOffset now)
+    private Result<TimeSlot> ValidateSlot(BookCommand command, DateTime now)
     {
-        var slot = TimeSlot.Create(command.Start, command.Hours, businessZone);
+        var slot = TimeSlot.Create(command.Start, command.Hours);
         if (slot.IsFailure) return slot;
-        if (now > BookingCalendar.Deadline(slot.Value.Start, businessZone))
+        if (now > BookingCalendar.Deadline(slot.Value.Start))
             return Result<TimeSlot>.Failure("Book no later than Friday 16:00 in the previous week.");
         if (bookings.Any(b => !b.IsCancelled && b.Slot.Overlaps(slot.Value)))
             return Result<TimeSlot>.Failure("This slot is already booked.");
         return slot;
     }
 
-    public Result<Booking> Book(BookCommand command, DateTimeOffset now, Guid id)
+    public Result<Booking> Book(BookCommand command, DateTime now, Guid id)
     {
         if (bookings.Any(b => b.Id == id)) return Result<Booking>.Failure("Booking id already exists.");
         var slot = ValidateSlot(command, now);
@@ -40,11 +39,11 @@ public sealed class KareSchedule
         return booking.IsSuccess ? Result<Booking>.Success(booking.Value.Copy()) : booking;
     }
 
-    public Result<Money> Cancel(Guid id, DateTimeOffset now)
+    public Result<Money> Cancel(Guid id, DateTime now)
     {
         var booking = bookings.Find(b => b.Id == id);
         return booking is null ? Result<Money>.Failure("Booking not found.") : booking.Cancel(now);
     }
 
-    public KareSchedule Copy() => new(bookings, businessZone);
+    public KareSchedule Copy() => new(bookings);
 }

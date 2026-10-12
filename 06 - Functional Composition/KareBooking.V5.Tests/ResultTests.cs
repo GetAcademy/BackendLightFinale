@@ -1,7 +1,8 @@
+using KareBooking.V5.DomainModel;
+
 using NUnit.Framework;
 
 namespace KareBooking.V5.Tests;
-
 
 public sealed class ResultTests
 {

@@ -8,7 +8,7 @@ public interface IScheduleRepository
     Task<ScheduleSnapshot> LoadAsync();
     Task<bool> TrySaveAsync(KareSchedule schedule, long expectedVersion);
 }
-public interface IClock { DateTimeOffset Now { get; } }
+public interface IClock { DateTime Now { get; } }
 public interface IEmailSender { Task SendAsync(string recipient, string message); }
 public interface IPaymentGateway
 {

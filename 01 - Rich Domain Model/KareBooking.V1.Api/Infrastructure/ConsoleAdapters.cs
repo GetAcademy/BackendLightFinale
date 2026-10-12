@@ -1,6 +1,9 @@
-namespace KareBooking.V1;
+using KareBooking.V1.DomainModel;
+using KareBooking.V1.DomainServices;
 
-public sealed class SystemClock : IClock { public DateTimeOffset Now => DateTimeOffset.UtcNow; }
+namespace KareBooking.V1.Infrastructure;
+
+public sealed class SystemClock : IClock { public DateTime Now => DateTime.Now; }
 
 public sealed class ConsoleEmailSender : IEmailSender
 {

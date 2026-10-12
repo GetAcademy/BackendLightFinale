@@ -1,5 +1,7 @@
 # V2 – Value Objects
 
+Alle hovedversjonene bruker samme Onion-struktur: `Api → Core`. Core har `ApplicationServices`, `DomainServices` og `DomainModel`. API har HTTP, composition root og konkrete implementasjoner i `Infrastructure`.
+
 ## Hva er likt?
 
 Rik domenemodell, orkestrering og forretningsregler er de samme som i V1.
@@ -28,8 +30,8 @@ Et gyldig TimeSlot betyr fortsatt ikke at kalenderen er ledig. Verdiobjektet vet
 
 ## Kode å vise
 
-Åpne `KareBooking.V2.Core/TimeSlot.cs`, `Money.cs` og `ValueObjectTests.cs` i testprosjektet.
+Åpne `KareBooking.V2.Core/DomainModel/TimeSlot.cs`, `Money.cs` og `ValueObjectTests.cs` i testprosjektet.
 Forsøk å lage start 12:37; ingen gyldig `TimeSlot` kommer ut av factoryen.
 
-Se [rot-README](../README.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
+Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
 Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.

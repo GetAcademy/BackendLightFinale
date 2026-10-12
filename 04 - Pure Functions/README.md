@@ -30,5 +30,5 @@ Record alene gjør ikke en funksjon pure; records kan også inneholde mutable li
 Kjør konsollen fra rot-README-en. Åpne `KareBooking.PureFunctions.Console/Examples.cs`.
 Diskuter hvorfor `Price(2)` er enklere å teste enn `QuoteFromFile(path)`.
 
-Se [rot-README](../README.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
+Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
 Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.

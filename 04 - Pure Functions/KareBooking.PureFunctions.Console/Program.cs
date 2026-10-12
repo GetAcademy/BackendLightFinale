@@ -1,6 +1,6 @@
 using KareBooking.PureFunctions;
 
-var now = DateTimeOffset.UtcNow; // I/O at the edge of the demonstration.
+var now = DateTime.Now; // I/O at the edge of the demonstration.
 var id = Guid.NewGuid();
 var choice = Random.Shared.Next(0, 3);
 var booking = PureExamples.Create(id, now.AddDays(10), PureExamples.Price(2));

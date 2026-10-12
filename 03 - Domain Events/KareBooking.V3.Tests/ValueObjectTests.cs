@@ -1,22 +1,22 @@
+using KareBooking.V3.DomainModel;
+
 using NUnit.Framework;
 
 namespace KareBooking.V3.Tests;
 
-
 public sealed class ValueObjectTests
 {
-    private static readonly TimeZoneInfo zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo");
-    private static readonly DateTimeOffset start = DateTimeOffset.Parse("2030-01-14T12:00:00+01:00");
+    private static readonly DateTime start = DateTime.Parse("2030-01-14T12:00:00");
 
     [TestCase(0)] [TestCase(-2)] [TestCase(5)]
     public void Invalid_TimeSlot_cannot_be_created(int hours) =>
-        Assert.That(TimeSlot.Create(start, hours, zone).IsFailure, Is.True);
+        Assert.That(TimeSlot.Create(start, hours).IsFailure, Is.True);
 
     [Test]
     public void Minute_start_and_late_end_cannot_be_represented()
     {
-        Assert.That(TimeSlot.Create(start.AddMinutes(37), 1, zone).IsFailure, Is.True);
-        Assert.That(TimeSlot.Create(start.AddHours(3), 2, zone).IsFailure, Is.True);
+        Assert.That(TimeSlot.Create(start.AddMinutes(37), 1).IsFailure, Is.True);
+        Assert.That(TimeSlot.Create(start.AddHours(3), 2).IsFailure, Is.True);
     }
 
     [TestCase(-1)] [TestCase(0.001)]
@@ -26,9 +26,9 @@ public sealed class ValueObjectTests
     [Test]
     public void Values_compare_by_content()
     {
-        Assert.That(TimeSlot.Create(start, 2, zone).Value, Is.EqualTo(TimeSlot.Create(start.ToUniversalTime(), 2, zone).Value));
+        Assert.That(TimeSlot.Create(start, 2).Value, Is.EqualTo(TimeSlot.Create(new DateTime(2030, 1, 14, 12, 0, 0), 2).Value));
         Assert.That(Money.Create(800).Value, Is.EqualTo(Money.ForHours(2)));
         Assert.That(Money.ForHours(2).Currency, Is.EqualTo("NOK"));
-        Assert.That(TimeSlot.Create(start, 2, zone).Value.Hours, Is.EqualTo(2));
+        Assert.That(TimeSlot.Create(start, 2).Value.Hours, Is.EqualTo(2));
     }
 }

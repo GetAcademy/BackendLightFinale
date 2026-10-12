@@ -2,14 +2,14 @@ namespace KareBooking.Aggregates;
 
 public sealed record TimeSlot
 {
-    public DateTimeOffset Start { get; }
+    public DateTime Start { get; }
     public int Hours { get; }
-    public DateTimeOffset End => Start.AddHours(Hours);
-    private TimeSlot(DateTimeOffset start, int hours) { Start = start; Hours = hours; }
+    public DateTime End => Start.AddHours(Hours);
+    private TimeSlot(DateTime start, int hours) { Start = start; Hours = hours; }
 
-    public static Result<TimeSlot> Create(DateTimeOffset start, int hours, TimeZoneInfo businessZone)
+    public static Result<TimeSlot> Create(DateTime start, int hours)
     {
-        var local = TimeZoneInfo.ConvertTime(start, businessZone);
+        var local = start;
         if (local.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
             return Result<TimeSlot>.Failure("Kare works Monday to Friday.");
         if (local.Minute != 0 || local.Second != 0 || local.Ticks % TimeSpan.TicksPerSecond != 0)

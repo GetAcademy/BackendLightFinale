@@ -51,6 +51,31 @@ Caset er bevisst konkret og har nok forretningsregler til at forskjellen mellom 
 
 ---
 
+## Onion-strukturen i V0–V5
+
+Kurset bruker en forenklet Onion Architecture: `Api → Core`.
+
+```text
+Core
+├── ApplicationServices   BookingService; BookingEventHandler fra V3
+├── DomainServices        IBookingRepository, IClock, IPaymentGateway, IEmailSender, IAuditLog
+└── DomainModel           domenetyper, regler, Result<T> og BookCommand
+
+Api
+├── Program.cs            HTTP og composition root
+└── Infrastructure        konkrete repository-, klokke-, betalings-, e-post- og audit-adaptere
+```
+
+DomainServices er kursets navn på Core sine interfaces mot utsiden. Program.cs kobler
+disse til konkrete implementasjoner. Core refererer aldri API, og vi har ikke et eget
+Infrastructure-prosjekt.
+
+V0s BookingService eier fortsatt mange regler. I V1 flytter forretningskunnskapen til
+DomainModel, innenfor samme struktur. V2 innfører verdiobjekter og V3 domain events.
+I V4/V5 er BookingService en Imperative Shell i Onion Core, mens BookingWorkflow i
+DomainModel er Functional Core. Onion Core beskriver avhengighetsretningen;
+Functional Core beskriver rene beregninger. V5 bruker Map/Bind der V4 bruker vanlig Result-kontrollflyt.
+
 # Forretningsregler
 
 ## Arbeidstid
@@ -62,11 +87,7 @@ mandag–fredag
 kl. 12:00–16:00
 ```
 
-Tidssonereglene bruker:
-
-```text
-Europe/Oslo
-```
+Alle tidspunkt er `DateTime` og representerer lokal tid for Kåres virksomhet.
 
 En booking:
 
@@ -93,7 +114,7 @@ Nøyaktig kl. 16:00 er tillatt.
 
 Etter kl. 16:00 avvises bookingen.
 
-Regelen håndteres i `Europe/Oslo`, inkludert overganger mellom sommer- og vintertid.
+Fristen beregnes direkte fra det lokale tidspunktet.
 
 ---
 
@@ -119,7 +140,7 @@ Dermed:
 
 # Avbestilling
 
-Refusjonen avhenger av hvor lang faktisk tid det er igjen til oppdraget starter.
+Refusjonen avhenger av hvor lang lokal tid det er igjen til oppdraget starter.
 
 ## Minst 7 døgn før
 
@@ -217,7 +238,7 @@ Her bruker vi teknikker studentene allerede kjenner:
 `BookingService.GetQuoteAsync()` og `BookAsync()` deler validering, tilgjengelighet og pris
 gjennom den private hjelpemetoden `EvaluateBookingAsync`. Vi har allerede brukt Extract Method.
 
-V0 er en legitim, ryddig Transaction Script-løsning. Core inneholder relativt anemiske typer;
+V0 er en legitim, ryddig Transaction Script-løsning. DomainModel inneholder relativt anemiske typer;
 `BookingService` eier nesten all forretningskunnskap og orkestrerer I/O.
 
 Transaction Script kan være et godt og enklere valg for et lite domene. V1 utforsker om viktige,
@@ -226,7 +247,7 @@ navngitte regler bør ha sitt hjem i domenemodellen.
 **Start her:**
 
 ```text
-00 - Transaction Script/KareBooking.V0.Api/Application/BookingService.cs
+00 - Transaction Script/KareBooking.V0.Core/ApplicationServices/BookingService.cs
 ```
 
 [Les mer om V0](00%20-%20Transaction%20Script/README.md)
@@ -245,7 +266,7 @@ KareBooking.V1.Core
 KareBooking.V1.Tests
 ```
 
-Forretningskunnskap flyttes inn i Core. V0s `BookingService` kjenner reglene; i V1 kjenner
+Forretningskunnskap flyttes fra ApplicationServices til DomainModel i samme Core-prosjekt. V0s `BookingService` kjenner reglene; i V1 kjenner
 domenemodellen reglene og `BookingService` orkestrerer. Begge har allerede intern regelgjenbruk.
 
 Blant annet får vi:
@@ -255,7 +276,7 @@ KareSchedule
 Booking
 ```
 
-Application-laget blir mer:
+ApplicationServices blir mer:
 
 ```text
 les data
@@ -269,13 +290,13 @@ utfør sideeffekter
 
 Det sentrale spørsmålet er:
 
-> Hva er egentlig det vi ønsker å ha i Core?
+> Hva er egentlig det vi ønsker å ha i DomainModel?
 
 **Start her:**
 
 ```text
-01 - Rich Domain Model/KareBooking.V1.Core/KareSchedule.cs
-01 - Rich Domain Model/KareBooking.V1.Core/Booking.cs
+01 - Rich Domain Model/KareBooking.V1.Core/DomainModel/KareSchedule.cs
+01 - Rich Domain Model/KareBooking.V1.Core/DomainModel/Booking.cs
 ```
 
 Sammenlign deretter `BookingService` med V0.
@@ -322,8 +343,8 @@ Et gyldig `TimeSlot` betyr derimot ikke at tidspunktet er ledig. Tilgjengelighet
 **Start her:**
 
 ```text
-02 - Value Objects/KareBooking.V2.Core/TimeSlot.cs
-02 - Value Objects/KareBooking.V2.Core/Money.cs
+02 - Value Objects/KareBooking.V2.Core/DomainModel/TimeSlot.cs
+02 - Value Objects/KareBooking.V2.Core/DomainModel/Money.cs
 ```
 
 [Les mer om V2](02%20-%20Value%20Objects/README.md)
@@ -389,8 +410,8 @@ som er tekniske actions/effects.
 **Start her:**
 
 ```text
-03 - Domain Events/KareBooking.V3.Core/DomainEvents.cs
-03 - Domain Events/KareBooking.V3.Api/Application/BookingEventHandler.cs
+03 - Domain Events/KareBooking.V3.Core/DomainModel/DomainEvents.cs
+03 - Domain Events/KareBooking.V3.Core/ApplicationServices/BookingEventHandler.cs
 ```
 
 [Les mer om V3](03%20-%20Domain%20Events/README.md)
@@ -470,10 +491,9 @@ Shell-et skaffer ting som:
 eksisterende bookings
 nåværende tidspunkt
 generert id
-tidssone
 ```
 
-og sender dem som vanlige data til Core.
+og sender dem som vanlige data til DomainModel/BookingWorkflow.
 
 For eksempel:
 
@@ -487,7 +507,7 @@ business decision
 state + domain events ut
 ```
 
-Core kjenner ikke:
+Functional Core (DomainModel/BookingWorkflow) kjenner ikke:
 
 - repository
 - database
@@ -502,14 +522,14 @@ Dette betyr **ikke** at hele applikasjonen slutter å bruke Dependency Injection
 
 Det betyr:
 
-> **Core trenger ikke DI.**
+> **Functional Core trenger ikke DI.**
 
-Imperative shell bruker fortsatt DI for sine I/O-avhengigheter.
+Imperative Shell ligger i Core/ApplicationServices og bruker fortsatt DI for sine I/O-avhengigheter.
 
 **Start her:**
 
 ```text
-05 - Functional Core Imperative Shell/KareBooking.V4.Core/BookingWorkflow.cs
+05 - Functional Core Imperative Shell/KareBooking.V4.Core/DomainModel/BookingWorkflow.cs
 ```
 
 Se også testene som kaller workflowen direkte uten I/O-mocks.
@@ -576,8 +596,8 @@ Dette er praktisk functional composition, ikke en full introduksjon til funksjon
 **Start her:**
 
 ```text
-06 - Functional Composition/KareBooking.V5.Core/Result.cs
-06 - Functional Composition/KareBooking.V5.Core/BookingWorkflow.cs
+06 - Functional Composition/KareBooking.V5.Core/DomainModel/Result.cs
+06 - Functional Composition/KareBooking.V5.Core/DomainModel/BookingWorkflow.cs
 ```
 
 og:
@@ -774,7 +794,7 @@ Content-Type: application/json
 
 {
   "customerEmail": "ada@example.test",
-  "start": "2030-01-14T12:00:00+01:00",
+  "start": "2030-01-14T12:00:00",
   "hours": 2
 }
 ```
@@ -847,7 +867,7 @@ Blant annet testes:
 - hel klokktime
 - varighet
 - bookingfrist
-- sommer-/vintertid
+- lokale tidspunkt og uke-/årsgrenser
 - pris
 - overlap
 - avbestillingsgrenser
@@ -911,7 +931,7 @@ WriteAuditLog
 
 er noe annet.
 
-Repositoryet viser den implementerte varianten hvor Core produserer domain events og shell/handlers reagerer på dem, og diskuterer også hvordan en høyere workflow kunne produsert eksplisitte effect-data.
+Repositoryet viser den implementerte varianten hvor DomainModel produserer domain events og shell/handlers reagerer på dem, og diskuterer også hvordan en høyere workflow kunne produsert eksplisitte effect-data.
 
 Les:
 

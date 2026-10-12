@@ -11,7 +11,7 @@ Den er uavhengig av V0–V5. Events, event sourcing og CQRS er ikke nødvendige 
 `Booking.Create` og `Booking.Cancel` er internal. Read-visningen er readonly og gir kopier.
 Rooten beskytter ingen-overlapp og unik id på tvers av children; et barn kan ikke kjenne alle søsknene.
 `IScheduleRepository` laster/lagrer hele rooten, uten et repository per booking/tabell.
-Repository-et bruker versjon på snapshot og avviser stale writes.
+Repository-et bruker versjon på snapshot og avviser stale writes. Det er en teaching fake uten trådsikkerhet; testen lagrer to tidligere innleste snapshots etter hverandre.
 
 ## Hvilket problem prøver dette å løse?
 
@@ -34,5 +34,5 @@ Conflict gir failure og ingen betaling; ingen skjult automatisk retry av operasj
 `InMemoryScheduleRepository.cs` og `AggregateTests.cs`.
 Diskuter hvorfor Aggregate Root og rowversion løser to ulike deler av konsistensproblemet.
 
-Se [rot-README](../README.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
+Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
 Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.

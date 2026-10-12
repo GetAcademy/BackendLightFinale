@@ -2,17 +2,15 @@ using NUnit.Framework;
 
 namespace KareBooking.Aggregates.Tests;
 
-
 public sealed class AggregateTests
 {
-    private static readonly TimeZoneInfo zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo");
-    private static readonly BookCommand command = new("ada@example.test", DateTimeOffset.Parse("2030-01-14T12:00:00+01:00"), 2);
-    private static readonly DateTimeOffset now = command.Start.AddDays(-14);
+    private static readonly BookCommand command = new("ada@example.test", DateTime.Parse("2030-01-14T12:00:00"), 2);
+    private static readonly DateTime now = command.Start.AddDays(-14);
 
     [Test]
     public void Root_protects_the_booking_collection_and_releases_a_cancelled_slot()
     {
-        var root = new KareSchedule(zone);
+        var root = new KareSchedule();
         var booked = root.Book(command, now, Guid.NewGuid());
         Assert.That(booked.IsSuccess, Is.True);
         Assert.That(root.Book(command, now, Guid.NewGuid()).IsFailure, Is.True);
@@ -27,7 +25,7 @@ public sealed class AggregateTests
     [Test]
     public async Task Aggregate_rules_alone_cannot_prevent_two_stale_snapshots_from_overwriting_each_other()
     {
-        var repository = new InMemoryScheduleRepository(zone);
+        var repository = new InMemoryScheduleRepository();
         var first = await repository.LoadAsync();
         var second = await repository.LoadAsync();
         Assert.That(first.Schedule.Book(command, now, Guid.NewGuid()).IsSuccess, Is.True);
@@ -43,7 +41,7 @@ public sealed class AggregateTests
     [Test]
     public void Duplicate_identity_is_rejected_even_for_another_slot()
     {
-        var root = new KareSchedule(zone);
+        var root = new KareSchedule();
         var id = Guid.NewGuid();
         root.Book(command, now, id);
         Assert.That(root.Book(command with { Start = command.Start.AddDays(1) }, now, id).IsFailure, Is.True);

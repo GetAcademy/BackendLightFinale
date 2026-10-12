@@ -19,7 +19,7 @@ public sealed class Booking
         return Result<Booking>.Success(booking);
     }
 
-    internal Result<Money> Cancel(DateTimeOffset now)
+    internal Result<Money> Cancel(DateTime now)
     {
         if (IsCancelled) return Result<Money>.Failure("Booking is already cancelled.");
         var remaining = Slot.Start - now;

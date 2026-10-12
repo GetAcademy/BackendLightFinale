@@ -1,5 +1,7 @@
 # V3 – Domain Events
 
+Alle hovedversjonene bruker samme Onion-struktur: `Api → Core`. Core har `ApplicationServices`, `DomainServices` og `DomainModel`. API har HTTP, composition root og konkrete implementasjoner i `Infrastructure`.
+
 ## Hva er likt?
 
 Verdiobjekter, identitet, kontrollert mutasjon og booking-/refusjonsregler beholdes fra V2.
@@ -9,7 +11,7 @@ Betaling ligger fortsatt eksplisitt i tjenesten.
 
 `Booking.Create` returnerer `BookingDecision` med `BookingCreated`.
 `Booking.Cancel` returnerer `CancellationDecision` med `BookingCancelled`.
-`BookingEventHandler` i API-et reagerer med e-post og audit; Core kjenner ingen adapters.
+`BookingEventHandler` i `Core/ApplicationServices` reagerer med e-post og audit; Core kjenner ingen adapters.
 Hendelser returneres sammen med akkurat denne operasjonen, uten en skjult global event queue.
 
 ## Hvilket problem prøver dette å løse?
@@ -28,9 +30,9 @@ Dispatch skjer synkront etter save/payment. Ingen durable levering eller automat
 
 ## Kode å vise
 
-Åpne `KareBooking.V3.Core/DomainEvents.cs`, `Booking.cs` og API-ets `BookingEventHandler.cs`.
+Åpne `KareBooking.V3.Core/DomainModel/DomainEvents.cs`, `Booking.cs` og `Core/ApplicationServices/BookingEventHandler.cs`.
 Se `DomainEventTests.cs` og `ShellTests.cs`. Les også `../docs/actions-as-data.md`.
 Domain Events gjør ikke lagring og betaling atomisk.
 
-Se [rot-README](../README.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
+Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
 Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.

@@ -1,8 +1,12 @@
+using KareBooking.V4.DomainModel;
+using KareBooking.V4.DomainServices;
+using KareBooking.V4.Infrastructure;
+
 namespace KareBooking.V4.Tests;
 
-public sealed class FixedClock(DateTimeOffset now) : IClock
+public sealed class FixedClock(DateTime now) : IClock
 {
-    public DateTimeOffset Now { get; set; } = now;
+    public DateTime Now { get; set; } = now;
 }
 
 public sealed class RecordingEffects : IEmailSender, IPaymentGateway, IAuditLog

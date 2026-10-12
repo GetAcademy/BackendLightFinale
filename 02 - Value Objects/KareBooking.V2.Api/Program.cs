@@ -1,7 +1,9 @@
-using KareBooking.V2;
+using KareBooking.V2.DomainModel;
+using KareBooking.V2.DomainServices;
+using KareBooking.V2.ApplicationServices;
+using KareBooking.V2.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton(TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo"));
 builder.Services.AddSingleton<IBookingRepository, InMemoryBookingRepository>();
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddSingleton<IEmailSender, ConsoleEmailSender>();
@@ -11,7 +13,7 @@ builder.Services.AddSingleton<IAuditLog, ConsoleAuditLog>();
 builder.Services.AddSingleton<BookingService>();
 var app = builder.Build();
 
-app.MapGet("/quote", async (DateTimeOffset start, int hours, string customerEmail, BookingService service) =>
+app.MapGet("/quote", async (DateTime start, int hours, string customerEmail, BookingService service) =>
 {
     var result = await service.GetQuoteAsync(new BookCommand(customerEmail, start, hours));
     return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(new { error = result.Error });

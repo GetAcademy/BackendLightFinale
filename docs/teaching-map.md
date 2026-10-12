@@ -5,13 +5,13 @@ Ikke presenter hver nye teknikk som en automatisk forbedring.
 
 | Version | Problem experienced | New concept | Main code to show | Suggested discussion question |
 | --- | --- | --- | --- | --- |
-| V0, steg 00 | Tjenesten eier regler og orkestrerer I/O; Extract Method gir allerede intern gjenbruk | Transaction Script | V0.Api/Application/BookingService.cs; V0.Core/Booking.cs | V0 er ryddig. Bør navngitte regler bo i private hjelpemetoder eller i domenemodellen? |
-| V1, steg 01 | Forretningskunnskap bor i use case-tjenester | Rich Domain Model | V1.Core/KareSchedule.cs, Booking.cs | Hvilke beslutninger tilhører domenet, og hvilke tilhører orkestreringen? |
-| V2, steg 02 | Primitive verdier tillater ugyldig tid og utydelig penger | Value Objects | V2.Core/TimeSlot.cs, Money.cs; ValueObjectTests | Hvilke regler kan TimeSlot garantere, og hvilke trenger kalenderen? |
-| V3, steg 03 | Tjenesten kjenner hver følgehendelse | Domain Events | V3.Core/DomainEvents.cs; V3.Api/Application/BookingEventHandler.cs | Er SendEmail et forretningsfaktum? Hva om audit feiler? |
+| V0, steg 00 | Tjenesten eier regler og orkestrerer I/O; Extract Method gir allerede intern gjenbruk | Transaction Script | V0.Core/ApplicationServices/BookingService.cs; V0.Core/DomainModel/Booking.cs | V0 er ryddig. Bør navngitte regler bo i private hjelpemetoder eller i domenemodellen? |
+| V1, steg 01 | Forretningskunnskap bor i use case-tjenester | Rich Domain Model | V1.Core/DomainModel/KareSchedule.cs, Booking.cs | Hvilke beslutninger tilhører domenet, og hvilke tilhører orkestreringen? |
+| V2, steg 02 | Primitive verdier tillater ugyldig tid og utydelig penger | Value Objects | V2.Core/DomainModel/TimeSlot.cs, Money.cs; ValueObjectTests | Hvilke regler kan TimeSlot garantere, og hvilke trenger kalenderen? |
+| V3, steg 03 | Tjenesten kjenner hver følgehendelse | Domain Events | V3.Core/DomainModel/DomainEvents.cs; V3.Core/ApplicationServices/BookingEventHandler.cs | Er SendEmail et forretningsfaktum? Hva om audit feiler? |
 | Pure, steg 04 | Skjult klokke/random/I/O og mutasjon gjør beregning uforutsigbar | Pure functions / records / with | PureFunctions.Console/Examples.cs | Hvorfor gjør ikke record alene en funksjon pure? |
-| V4, steg 05 | Workflow-grensen og mutasjonen kan gjøres mer eksplisitt | Functional Core / Imperative Shell | V4.Core/BookingWorkflow.cs; FunctionalCoreTests | Hvor stopper DI, og hvem skaffer now/id/tidssone? |
-| V5, steg 06 | Samme feilsjekk avbryter flyten mellom steg | Map / Bind / composition | V5.Core/Result.cs, BookingWorkflow.cs; Composition.Console | Hvorfor trenger et steg som kan feile Bind, mens ToDecision bruker Map? |
+| V4, steg 05 | Workflow-grensen og mutasjonen kan gjøres mer eksplisitt | Functional Core / Imperative Shell | V4.Core/DomainModel/BookingWorkflow.cs; FunctionalCoreTests | Hvor stopper DI, og hvem skaffer now/id? |
+| V5, steg 06 | Samme feilsjekk avbryter flyten mellom steg | Map / Bind / composition | V5.Core/DomainModel/Result.cs, BookingWorkflow.cs; Composition.Console | Hvorfor trenger et steg som kan feile Bind, mens ToDecision bruker Map? |
 | Optional, steg 90 | En entity beskytter ikke invariants mellom søsken | Aggregate Root + optimistic save | Aggregates.Core/KareSchedule.cs; AggregateTests | Hvorfor kan to gyldige roots likevel kollidere ved save? |
 
 Stiene i tabellen er forkortet; prosjektene ligger i de navngitte solution folders.

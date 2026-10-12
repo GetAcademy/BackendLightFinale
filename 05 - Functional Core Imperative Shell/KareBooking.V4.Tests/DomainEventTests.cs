@@ -1,18 +1,18 @@
+using KareBooking.V4.DomainModel;
+
 using NUnit.Framework;
 
 namespace KareBooking.V4.Tests;
-
 
 public sealed class DomainEventTests
 {
     [Test]
     public void Domain_operations_produce_business_facts_without_sending_email()
     {
-        var zone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Oslo");
-        var command = new BookCommand("ada@example.test", DateTimeOffset.Parse("2030-01-14T12:00:00+01:00"), 2);
+        var command = new BookCommand("ada@example.test", DateTime.Parse("2030-01-14T12:00:00"), 2);
         var now = command.Start.AddDays(-14);
         var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
-        var created = BookingWorkflow.Book(command, [], now, id, zone);
+        var created = BookingWorkflow.Book(command, [], now, id);
         Assert.That(created.Value.Events, Has.Count.EqualTo(1));
         var fact = (BookingCreated)created.Value.Events.Single();
         Assert.That(fact.BookingId, Is.EqualTo(id));
