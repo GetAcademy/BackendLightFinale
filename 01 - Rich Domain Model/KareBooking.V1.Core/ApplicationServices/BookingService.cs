@@ -8,9 +8,9 @@ public sealed class BookingService(
 {
     public async Task<Result<decimal>> GetQuoteAsync(BookCommand command)
     {
-        var existing = await repository.GetAllAsync();
+        var existingBookings = await repository.GetAllAsync();
         var now = clock.Now;
-        return new KareSchedule(existing).GetQuote(command, now);
+        return new KareSchedule(existingBookings).GetQuote(command, now);
     }
 
     public async Task<Result<Booking>> BookAsync(BookCommand command)

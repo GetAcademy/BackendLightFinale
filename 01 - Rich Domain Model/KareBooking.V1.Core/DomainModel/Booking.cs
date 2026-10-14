@@ -11,9 +11,23 @@ public sealed class Booking
     public bool IsCancelled { get; private set; }
 
     internal Booking(Guid id, string customerEmail, DateTime start, int hours, decimal price)
-    { Id = id; CustomerEmail = customerEmail; Start = start; Hours = hours; Price = price; }
+    {
+        Id = id; 
+        CustomerEmail = customerEmail; 
+        Start = start; 
+        Hours = hours; 
+        Price = price;
+    }
 
-    public bool Overlaps(DateTime start, int hours) => !IsCancelled && start < End && start.AddHours(hours) > Start;
+    public bool Overlaps(DateTime start, int hours)
+    {
+        if (IsCancelled) return true;
+        var end = start.AddHours(hours);
+        var periodEndsBeforeThisStarts = end > Start;
+        var periodStartsAfterThisEnds = start > End;
+        var isNotOverlap = periodStartsAfterThisEnds || periodEndsBeforeThisStarts;
+        return !isNotOverlap;
+    }
 
     public Result<decimal> Cancel(DateTime now)
     {
