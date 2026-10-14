@@ -1,5 +1,5 @@
-using KareBooking.PreludeA.DomainModel;
-using KareBooking.PreludeA.Infrastructure;
+using KareBooking.PreludeA.Api.DomainModel;
+using KareBooking.PreludeA.Api.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<InMemoryBookingRepository>();
