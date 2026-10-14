@@ -1,4 +1,4 @@
-namespace KareBooking.V1.DomainModel;
+namespace KareBooking.V1.Core.DomainModel;
 
 public sealed class KareSchedule(IReadOnlyList<Booking> bookings)
 {

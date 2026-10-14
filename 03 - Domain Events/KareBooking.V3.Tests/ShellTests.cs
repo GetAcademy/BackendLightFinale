@@ -1,6 +1,5 @@
-using KareBooking.V3.DomainModel;
-using KareBooking.V3.ApplicationServices;
-
+using KareBooking.V3.Core.ApplicationServices;
+using KareBooking.V3.Core.DomainModel;
 using NUnit.Framework;
 
 namespace KareBooking.V3.Tests;

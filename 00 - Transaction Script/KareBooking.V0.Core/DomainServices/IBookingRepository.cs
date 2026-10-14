@@ -1,6 +1,6 @@
-using KareBooking.V0.DomainModel;
+using KareBooking.V0.Core.DomainModel;
 
-namespace KareBooking.V0.DomainServices;
+namespace KareBooking.V0.Core.DomainServices;
 
 public interface IBookingRepository
 {

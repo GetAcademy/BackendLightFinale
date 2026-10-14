@@ -1,4 +1,4 @@
-namespace KareBooking.Composition;
+namespace KareBooking.Composition.Console;
 
 public static class FunctionExamples
 {

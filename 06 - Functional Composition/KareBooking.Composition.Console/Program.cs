@@ -1,6 +1,6 @@
-using KareBooking.V5.DomainModel;
-
 using KareBooking.Composition;
+using KareBooking.Composition.Console;
+using KareBooking.V5.Core.DomainModel;
 
 Func<int, int> addOne = x => x + 1;
 Func<int, int> doubleIt = x => x * 2;

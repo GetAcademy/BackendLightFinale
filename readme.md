@@ -194,9 +194,11 @@ En allerede avbestilt booking kan heller ikke avbestilles på nytt.
 BackendLight.ArchitectureLab.sln
 ```
 
-Solutionen inneholder åtte Solution Folders:
+Solutionen inneholder ti Solution Folders:
 
 ```text
+Prelude A - Endpoint Script
+Prelude B - Rich Domain without Application Service
 00 - Transaction Script
 01 - Rich Domain Model
 02 - Value Objects
@@ -210,6 +212,31 @@ Solutionen inneholder åtte Solution Folders:
 Versjonene er bevisst selvstendige.
 
 Det finnes ikke ett felles domain-library som alle versjoner deler. Litt duplisering mellom versjonene gjør det lettere å åpne to steg side om side og sammenligne dem.
+
+---
+
+# Prelude – to uavhengige designvalg
+
+Prelude-variantene er ekstra sammenligningsvarianter før V0, ikke nummererte steg i hovedreisen.
+
+| Orkestrering | Script: business-regler i use caset | Rich Domain: business-regler i modellen |
+| --- | --- | --- |
+| Endpoint | [Prelude A – Endpoint Script](Prelude%20A%20-%20Endpoint%20Script/README.md) | [Prelude B – Rich Domain without Application Service](Prelude%20B%20-%20Rich%20Domain%20without%20Application%20Service/README.md) |
+| Application Service | V0 – Transaction Script | V1 – Rich Domain Model |
+
+Begge Prelude-variantene har ett Minimal API-prosjekt og injiserer konkrete Infrastructure-klasser.
+De bruker **Dependency Injection**, men ikke **Dependency Inversion**: ingen interfaces eller separat Onion Core.
+Prelude-eksemplene har bevisst ingen testprosjekter.
+
+- **A → B:** Flytt business-kunnskap til DomainModel; behold orkestrering i endpoint og konkrete dependencies.
+- **A → V0:** Flytt orkestrering til Application Service og innfør Core-grense og interfaces; behold script-orienterte regler.
+- **B → V1:** Behold omtrent samme domenemodell; flytt orkestrering til Application Service og innfør Dependency Inversion.
+
+Domain modeling er ikke avhengig av Onion Architecture. Trenger denne lille applikasjonen faktisk
+Application Service og Onion Architecture? Ikke nødvendigvis.
+
+Alle bookingvariantene bruker samme lesbare overlappslogikk: intervaller som slutter før eller ved
+start, eller starter etter eller ved slutt, overlapper ikke. Kansellerte bookinger blokkerer ikke.
 
 ---
 
@@ -758,6 +785,8 @@ API-ene bruker disse portene:
 
 | Versjon | Port |
 | --- | ---: |
+| Prelude A Endpoint Script | 5098 |
+| Prelude B Rich Domain | 5099 |
 | V0 Transaction Script | 5100 |
 | V1 Rich Domain Model | 5101 |
 | V2 Value Objects | 5102 |

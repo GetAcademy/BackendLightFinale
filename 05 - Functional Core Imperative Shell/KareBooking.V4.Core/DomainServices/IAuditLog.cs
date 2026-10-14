@@ -1,3 +1,3 @@
-namespace KareBooking.V4.DomainServices;
+namespace KareBooking.V4.Core.DomainServices;
 
 public interface IAuditLog { Task WriteAsync(string message); }

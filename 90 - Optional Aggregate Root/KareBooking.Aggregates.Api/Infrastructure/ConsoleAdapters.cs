@@ -1,4 +1,6 @@
-namespace KareBooking.Aggregates;
+using KareBooking.Aggregates.Api.Application;
+
+namespace KareBooking.Aggregates.Api.Infrastructure;
 
 public sealed class SystemClock : IClock { public DateTime Now => DateTime.Now; }
 

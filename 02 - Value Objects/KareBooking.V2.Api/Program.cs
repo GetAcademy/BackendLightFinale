@@ -1,7 +1,7 @@
-using KareBooking.V2.DomainModel;
-using KareBooking.V2.DomainServices;
-using KareBooking.V2.ApplicationServices;
-using KareBooking.V2.Infrastructure;
+using KareBooking.V2.Api.Infrastructure;
+using KareBooking.V2.Core.ApplicationServices;
+using KareBooking.V2.Core.DomainModel;
+using KareBooking.V2.Core.DomainServices;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IBookingRepository, InMemoryBookingRepository>();

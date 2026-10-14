@@ -1,4 +1,6 @@
-namespace KareBooking.Aggregates;
+using KareBooking.Aggregates.Core;
+
+namespace KareBooking.Aggregates.Api.Application;
 
 public sealed record ScheduleSnapshot(KareSchedule Schedule, long Version);
 

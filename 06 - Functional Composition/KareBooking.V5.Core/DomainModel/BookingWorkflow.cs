@@ -1,4 +1,4 @@
-namespace KareBooking.V5.DomainModel;
+namespace KareBooking.V5.Core.DomainModel;
 
 public static class BookingWorkflow
 {

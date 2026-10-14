@@ -1,4 +1,5 @@
 using KareBooking.PureFunctions;
+using KareBooking.PureFunctions.Console;
 
 var now = DateTime.Now; // I/O at the edge of the demonstration.
 var id = Guid.NewGuid();

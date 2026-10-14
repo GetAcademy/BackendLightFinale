@@ -1,3 +1,6 @@
+using KareBooking.Aggregates.Api.Application;
+using KareBooking.Aggregates.Api.Infrastructure;
+using KareBooking.Aggregates.Core;
 using NUnit.Framework;
 
 namespace KareBooking.Aggregates.Tests;

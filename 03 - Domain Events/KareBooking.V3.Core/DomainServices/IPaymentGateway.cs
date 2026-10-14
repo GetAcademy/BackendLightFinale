@@ -1,4 +1,4 @@
-namespace KareBooking.V3.DomainServices;
+namespace KareBooking.V3.Core.DomainServices;
 
 public interface IPaymentGateway
 {

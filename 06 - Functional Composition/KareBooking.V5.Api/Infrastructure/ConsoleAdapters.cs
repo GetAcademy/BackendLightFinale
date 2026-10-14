@@ -1,7 +1,6 @@
-using KareBooking.V5.DomainModel;
-using KareBooking.V5.DomainServices;
+using KareBooking.V5.Core.DomainServices;
 
-namespace KareBooking.V5.Infrastructure;
+namespace KareBooking.V5.Api.Infrastructure;
 
 public sealed class SystemClock : IClock { public DateTime Now => DateTime.Now; }
 

@@ -66,6 +66,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.Aggregates.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V0.Core", "00 - Transaction Script\KareBooking.V0.Core\KareBooking.V0.Core.csproj", "{F8512E9D-E78B-42AE-8791-3275D0A332D7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Prelude A - Endpoint Script", "Prelude A - Endpoint Script", "{8D953E2B-31F3-DCA3-9E0B-D2FE13701801}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.PreludeA.Api", "Prelude A - Endpoint Script\KareBooking.PreludeA.Api\KareBooking.PreludeA.Api.csproj", "{9AB22357-B9E6-4EAD-9775-C99AC03D5AB1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Prelude B - Rich Domain without Application Service", "Prelude B - Rich Domain without Application Service", "{91A96ADC-4AB1-6614-086C-487CC6A1FF76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.PreludeB.Api", "Prelude B - Rich Domain without Application Service\KareBooking.PreludeB.Api\KareBooking.PreludeB.Api.csproj", "{E58E698F-8394-44BD-9FE6-71DC0EC4DB4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -168,6 +176,17 @@ Global
 		{F8512E9D-E78B-42AE-8791-3275D0A332D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8512E9D-E78B-42AE-8791-3275D0A332D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8512E9D-E78B-42AE-8791-3275D0A332D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AB22357-B9E6-4EAD-9775-C99AC03D5AB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AB22357-B9E6-4EAD-9775-C99AC03D5AB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AB22357-B9E6-4EAD-9775-C99AC03D5AB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AB22357-B9E6-4EAD-9775-C99AC03D5AB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E58E698F-8394-44BD-9FE6-71DC0EC4DB4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E58E698F-8394-44BD-9FE6-71DC0EC4DB4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E58E698F-8394-44BD-9FE6-71DC0EC4DB4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E58E698F-8394-44BD-9FE6-71DC0EC4DB4B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2683BC02-FDAE-4A11-9531-276F92D25C3D} = {0536FF9F-D227-4FA1-A1CA-2683191AF36B}
@@ -194,5 +213,7 @@ Global
 		{A7F3F744-A5F4-4C27-B5AB-540295E00B30} = {3C2AC793-FF95-4F05-B01F-B6A4F807B3B7}
 		{FE2F0B6F-407B-4D3E-AE17-279CA9EC65F8} = {3C2AC793-FF95-4F05-B01F-B6A4F807B3B7}
 		{F8512E9D-E78B-42AE-8791-3275D0A332D7} = {0536FF9F-D227-4FA1-A1CA-2683191AF36B}
+		{9AB22357-B9E6-4EAD-9775-C99AC03D5AB1} = {8D953E2B-31F3-DCA3-9E0B-D2FE13701801}
+		{E58E698F-8394-44BD-9FE6-71DC0EC4DB4B} = {91A96ADC-4AB1-6614-086C-487CC6A1FF76}
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,4 @@
-namespace KareBooking.V3.DomainModel;
+namespace KareBooking.V3.Core.DomainModel;
 
 public sealed class Result<T>
 {

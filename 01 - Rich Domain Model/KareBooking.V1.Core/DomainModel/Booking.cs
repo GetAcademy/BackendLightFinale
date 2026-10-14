@@ -1,4 +1,4 @@
-namespace KareBooking.V1.DomainModel;
+namespace KareBooking.V1.Core.DomainModel;
 
 public sealed class Booking
 {
@@ -21,12 +21,11 @@ public sealed class Booking
 
     public bool Overlaps(DateTime start, int hours)
     {
-        if (IsCancelled) return true;
+        if (IsCancelled) return false;
         var end = start.AddHours(hours);
-        var periodEndsBeforeThisStarts = end > Start;
-        var periodStartsAfterThisEnds = start > End;
-        var isNotOverlap = periodStartsAfterThisEnds || periodEndsBeforeThisStarts;
-        return !isNotOverlap;
+        var endsBeforeOrAtStart = end <= Start;
+        var startsAfterOrAtEnd = start >= End;
+        return !(endsBeforeOrAtStart || startsAfterOrAtEnd);
     }
 
     public Result<decimal> Cancel(DateTime now)

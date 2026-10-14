@@ -1,5 +1,4 @@
-using KareBooking.V2.DomainModel;
-
+using KareBooking.V2.Core.DomainModel;
 using NUnit.Framework;
 
 namespace KareBooking.V2.Tests;

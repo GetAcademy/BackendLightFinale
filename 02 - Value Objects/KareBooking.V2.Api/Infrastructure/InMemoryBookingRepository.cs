@@ -1,7 +1,7 @@
-using KareBooking.V2.DomainModel;
-using KareBooking.V2.DomainServices;
+using KareBooking.V2.Core.DomainModel;
+using KareBooking.V2.Core.DomainServices;
 
-namespace KareBooking.V2.Infrastructure;
+namespace KareBooking.V2.Api.Infrastructure;
 
 public sealed class InMemoryBookingRepository : IBookingRepository
 {

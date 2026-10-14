@@ -1,4 +1,4 @@
-namespace KareBooking.PureFunctions;
+namespace KareBooking.PureFunctions.Console;
 
 public sealed class MutableBooking { public bool IsCancelled { get; set; } }
 public sealed record BookingValue(Guid Id, DateTime Start, decimal Price, bool IsCancelled = false);

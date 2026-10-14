@@ -1,4 +1,6 @@
-namespace KareBooking.Aggregates;
+using KareBooking.Aggregates.Core;
+
+namespace KareBooking.Aggregates.Api.Application;
 
 public sealed class BookingService(IScheduleRepository repository, IClock clock,
     IPaymentGateway payment, IEmailSender email, IAuditLog audit)

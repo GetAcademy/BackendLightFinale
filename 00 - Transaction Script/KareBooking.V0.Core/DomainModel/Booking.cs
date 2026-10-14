@@ -1,4 +1,4 @@
-namespace KareBooking.V0.DomainModel;
+namespace KareBooking.V0.Core.DomainModel;
 
 public sealed class Booking(Guid id, string customerEmail, DateTime start, int hours, decimal price)
 {

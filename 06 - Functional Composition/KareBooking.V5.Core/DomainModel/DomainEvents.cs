@@ -1,4 +1,4 @@
-namespace KareBooking.V5.DomainModel;
+namespace KareBooking.V5.Core.DomainModel;
 
 public abstract record DomainEvent;
 public sealed record BookingCreated(Guid BookingId, string CustomerEmail, DateTime Start, Money Price)

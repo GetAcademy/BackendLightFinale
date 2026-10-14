@@ -1,3 +1,4 @@
+using KareBooking.PureFunctions.Console;
 using NUnit.Framework;
 
 namespace KareBooking.PureFunctions.Tests;

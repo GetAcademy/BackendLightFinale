@@ -1,7 +1,7 @@
-using KareBooking.V2.DomainModel;
-using KareBooking.V2.DomainServices;
+using KareBooking.V2.Core.DomainModel;
+using KareBooking.V2.Core.DomainServices;
 
-namespace KareBooking.V2.ApplicationServices;
+namespace KareBooking.V2.Core.ApplicationServices;
 
 public sealed class BookingService(
     IBookingRepository repository, IClock clock, IPaymentGateway payment, IEmailSender email, IAuditLog audit)

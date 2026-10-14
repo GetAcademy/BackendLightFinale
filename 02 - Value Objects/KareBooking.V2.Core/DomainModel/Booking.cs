@@ -1,4 +1,4 @@
-namespace KareBooking.V2.DomainModel;
+namespace KareBooking.V2.Core.DomainModel;
 
 public sealed class Booking
 {

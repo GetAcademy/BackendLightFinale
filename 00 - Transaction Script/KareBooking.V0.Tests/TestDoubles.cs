@@ -1,6 +1,6 @@
-using KareBooking.V0.DomainModel;
-using KareBooking.V0.DomainServices;
-using KareBooking.V0.Infrastructure;
+using KareBooking.V0.Api.Infrastructure;
+using KareBooking.V0.Core.DomainModel;
+using KareBooking.V0.Core.DomainServices;
 
 namespace KareBooking.V0.Tests;
 

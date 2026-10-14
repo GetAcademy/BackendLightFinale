@@ -1,4 +1,4 @@
-namespace KareBooking.Aggregates;
+namespace KareBooking.Aggregates.Core;
 
 public sealed class Booking
 {

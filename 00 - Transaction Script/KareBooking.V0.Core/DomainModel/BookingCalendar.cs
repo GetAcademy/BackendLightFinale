@@ -1,4 +1,4 @@
-namespace KareBooking.V0.DomainModel;
+namespace KareBooking.V0.Core.DomainModel;
 
 public static class BookingCalendar
 {

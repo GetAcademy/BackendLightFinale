@@ -1,4 +1,7 @@
-namespace KareBooking.Aggregates;
+using KareBooking.Aggregates.Api.Application;
+using KareBooking.Aggregates.Core;
+
+namespace KareBooking.Aggregates.Api.Infrastructure;
 
 public sealed class InMemoryScheduleRepository : IScheduleRepository
 {

@@ -1,7 +1,7 @@
-using KareBooking.V3.DomainModel;
-using KareBooking.V3.DomainServices;
+using KareBooking.V3.Core.DomainModel;
+using KareBooking.V3.Core.DomainServices;
 
-namespace KareBooking.V3.ApplicationServices;
+namespace KareBooking.V3.Core.ApplicationServices;
 
 public sealed class BookingService(
     IBookingRepository repository, IClock clock, IPaymentGateway payment, BookingEventHandler events)

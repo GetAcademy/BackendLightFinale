@@ -1,7 +1,7 @@
-using KareBooking.V0.DomainModel;
-using KareBooking.V0.DomainServices;
+using KareBooking.V0.Core.DomainModel;
+using KareBooking.V0.Core.DomainServices;
 
-namespace KareBooking.V0.ApplicationServices;
+namespace KareBooking.V0.Core.ApplicationServices;
 
 public sealed class BookingService(
     IBookingRepository repository, IClock clock, IEmailSender email, IPaymentGateway payment,
@@ -25,7 +25,14 @@ public sealed class BookingService(
         if (clock.Now > BookingCalendar.Deadline(localTime))
             return Result<decimal>.Failure("Book no later than Friday 16:00 in the previous week.");
         var existing = await repository.GetAllAsync();
-        if (existing.Any(b => !b.IsCancelled && localTime < b.End && localTime.AddHours(command.Hours) > b.Start))
+        if (existing.Any(booking =>
+        {
+            if (booking.IsCancelled) return false;
+            var end = localTime.AddHours(command.Hours);
+            var endsBeforeOrAtStart = end <= booking.Start;
+            var startsAfterOrAtEnd = localTime >= booking.End;
+            return !(endsBeforeOrAtStart || startsAfterOrAtEnd);
+        }))
             return Result<decimal>.Failure("This slot is already booked.");
         var price = 500m + (command.Hours - 1) * 300m;
         return Result<decimal>.Success(price);

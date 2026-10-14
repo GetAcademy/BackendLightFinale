@@ -1,4 +1,4 @@
-namespace KareBooking.V4.DomainModel;
+namespace KareBooking.V4.Core.DomainModel;
 
 public sealed record TimeSlot
 {
@@ -22,5 +22,10 @@ public sealed record TimeSlot
     }
 
     // Half-open intervals: a booking ending at 13:00 permits one starting at 13:00.
-    public bool Overlaps(TimeSlot other) => Start < other.End && End > other.Start;
+    public bool Overlaps(TimeSlot other)
+    {
+        var endsBeforeOrAtStart = other.End <= Start;
+        var startsAfterOrAtEnd = other.Start >= End;
+        return !(endsBeforeOrAtStart || startsAfterOrAtEnd);
+    }
 }

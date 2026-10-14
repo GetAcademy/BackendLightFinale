@@ -1,4 +1,7 @@
 using KareBooking.Aggregates;
+using KareBooking.Aggregates.Api.Application;
+using KareBooking.Aggregates.Api.Infrastructure;
+using KareBooking.Aggregates.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IScheduleRepository, InMemoryScheduleRepository>();

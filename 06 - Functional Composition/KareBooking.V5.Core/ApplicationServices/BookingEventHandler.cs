@@ -1,7 +1,7 @@
-using KareBooking.V5.DomainModel;
-using KareBooking.V5.DomainServices;
+using KareBooking.V5.Core.DomainModel;
+using KareBooking.V5.Core.DomainServices;
 
-namespace KareBooking.V5.ApplicationServices;
+namespace KareBooking.V5.Core.ApplicationServices;
 
 public sealed class BookingEventHandler(IEmailSender email, IAuditLog audit)
 {
