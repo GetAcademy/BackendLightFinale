@@ -71,7 +71,7 @@ Vi splitter den gamle Application Service langs effect-grensen.
 BookingHandler eier reads/effects; BookingService eier pure use-case orchestration.
 KareSchedule og Booking beholder business-kunnskapen fra V3:
 
-- KareSchedule validerer bookingfrist og overlap/availability, og tilbyr GetQuote og Book.
+- KareSchedule validerer bookingfrist og overlap/availability, og tilbyr GetQuote. BookingService orkestrerer Book-use caset.
 - TimeSlot beholder invariants for arbeidsdag, arbeidstid og varighet, som i V3.
 - BookingCalendar beregner fristen, og Money eier prisberegningen.
 - Booking.Create lager BookingDecision med BookingCreated.

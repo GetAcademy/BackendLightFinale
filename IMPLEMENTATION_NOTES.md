@@ -78,7 +78,8 @@ Verifisert 16. oktober 2026:
 ## Korrigering av business-rule ownership, 16. oktober 2026
 
 Vi splitter den gamle Application Service langs effect-grensen, og beholder Rich Domain Model.
-KareSchedule er gjeninnført i V4/V6 med V3s kalenderansvar: ValidateSlot, GetQuote og Book.
+KareSchedule er gjeninnført i V4/V6 med V3s kalenderansvar: ValidateSlot og GetQuote.
+BookingService er eneste pure application-level entry point for Book; den redundante KareSchedule.Book er fjernet.
 ValidateQuoteSlot trekker ut quote-valideringen slik at V6 kan komponere den med Money.ForHours.
 TimeSlot beholder arbeidsdag/arbeidstid/varighet; BookingCalendar beholder fristberegningen.
 Booking eier creation, cancellation eligibility og refusjon. BookingCreated oppstår i Create,

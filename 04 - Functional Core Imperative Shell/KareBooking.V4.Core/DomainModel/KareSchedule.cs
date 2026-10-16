@@ -26,11 +26,4 @@ public sealed class KareSchedule(IReadOnlyList<Booking> bookings)
         return slot.IsSuccess ? Result<Money>.Success(Money.ForHours(slot.Value.Hours))
             : Result<Money>.Failure(slot.Error);
     }
-
-    public Result<BookingDecision> Book(BookCommand command, DateTime now, Guid id)
-    {
-        var slot = ValidateSlot(command, now);
-        if (slot.IsFailure) return Result<BookingDecision>.Failure(slot.Error);
-        return Booking.Create(id, command.CustomerEmail, slot.Value);
-    }
 }
