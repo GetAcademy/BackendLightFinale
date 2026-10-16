@@ -33,7 +33,7 @@ En replay ville først opprette bookingstate, så flytte tiden, og til slutt mar
 Historikken kan forklare *hvordan* nåværende state oppstod. BookingRescheduled er kun et
 konseptuelt eksempel; rescheduling er ikke en implementert use case i denne laben.
 
-Domain Events alene er ikke Event Sourcing. V3–V5 lagrer nåværende bookingstate; hendelser
+Domain Events alene er ikke Event Sourcing. V3, V4 og V6 lagrer nåværende bookingstate; hendelser
 brukes til reaksjoner og er ikke den autoritative, varige historikken.
 Event Sourcing ville krevd blant annet event store, versjonering av events, concurrency,
 replay og bevisste regler for om sideeffekter skal kjøres på nytt. Vi bygger ikke dette her.

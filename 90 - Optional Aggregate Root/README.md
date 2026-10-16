@@ -3,7 +3,7 @@
 ## Hva er likt?
 
 Denne sidegrenen kopierer den rike modellen med TimeSlot og Money og egne tester.
-Den er uavhengig av V0–V5. Events, event sourcing og CQRS er ikke nødvendige her.
+Den er uavhengig av V0–V4 og V6. Events, event sourcing og CQRS er ikke nødvendige her.
 
 ## Hva endret vi?
 

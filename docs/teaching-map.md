@@ -9,9 +9,9 @@ Ikke presenter hver nye teknikk som en automatisk forbedring.
 | V1, steg 01 | Forretningskunnskap bor i use case-tjenester | Rich Domain Model | V1.Core/DomainModel/KareSchedule.cs, Booking.cs | Hvilke beslutninger tilhører domenet, og hvilke tilhører orkestreringen? |
 | V2, steg 02 | Primitive verdier tillater ugyldig tid og utydelig penger | Value Objects | V2.Core/DomainModel/TimeSlot.cs, Money.cs; ValueObjectTests | Hvilke regler kan TimeSlot garantere, og hvilke trenger kalenderen? |
 | V3, steg 03 | Tjenesten kjenner hver følgehendelse | Domain Events | V3.Core/DomainModel/DomainEvents.cs; V3.Core/ApplicationServices/BookingEventHandler.cs | Er SendEmail et forretningsfaktum? Hva om audit feiler? |
-| Pure, steg 04 | Skjult klokke/random/I/O og mutasjon gjør beregning uforutsigbar | Pure functions / records / with | PureFunctions.Console/Examples.cs | Hvorfor gjør ikke record alene en funksjon pure? |
-| V4, steg 05 | Workflow-grensen og mutasjonen kan gjøres mer eksplisitt | Functional Core / Imperative Shell | V4.Core/DomainModel/BookingWorkflow.cs; FunctionalCoreTests | Hvor stopper DI, og hvem skaffer now/id? |
-| V5, steg 06 | Samme feilsjekk avbryter flyten mellom steg | Map / Bind / composition | V5.Core/DomainModel/Result.cs, BookingWorkflow.cs; Composition.Console | Hvorfor trenger et steg som kan feile Bind, mens ToDecision bruker Map? |
+| V4, steg 04, mandag | Application Service bruker tjenester mot utsiden | Functional Core / Imperative Shell | V4.Core/ApplicationServices/BookingService.cs; V4.Api/ImperativeShell/BookingHandler.cs | Hvor stopper DI, og hvem skaffer now/id? |
+| V5, steg 05, onsdag | Generalisere skillet mellom beregninger og effects | Pure functions / immutability / facts og effects som data | PureFunctions.Console/Examples.cs, Effects.cs | Hvorfor er BookingCreated et faktum, mens SaveBooking er en planlagt handling? |
+| V6, steg 06, fredag | Samme feilsjekk avbryter flyten mellom steg | Map / FlatMap / Railway Oriented Programming | V6.Core/DomainModel/Result.cs; V6.Core/ApplicationServices/BookingService.cs; Composition.Console | Hvorfor trenger et steg som kan feile FlatMap, mens ToDecision bruker Map? |
 | Optional, steg 90 | En entity beskytter ikke invariants mellom søsken | Aggregate Root + optimistic save | Aggregates.Core/KareSchedule.cs; AggregateTests | Hvorfor kan to gyldige roots likevel kollidere ved save? |
 
 Stiene i tabellen er forkortet; prosjektene ligger i de navngitte solution folders.
@@ -21,9 +21,9 @@ Stiene i tabellen er forkortet; prosjektene ligger i de navngitte solution folde
 1. V0 → V1: endre en prisregel og sammenlign ansvarsplassering. Begge gjenbruker reglene internt.
 2. V1 → V2: forsøk start 12:37 og diskuter representerbar state.
 3. V2 → V3: følg booking til e-post og skil fakta fra reaksjon.
-4. Pure Functions: 10–15 minutter med tid, tilfeldighet og `with`.
-5. V3 → V4: kall hele workflowen direkte fra en test; original state er urørt.
-6. V4 → V5: skriv samme feilkjede med if og Bind, og sammenlign lesbarhet.
+4. V3 → V4 (mandag): skill pure BookingService fra effectful BookingHandler; kall tjenesten med data.
+5. V5 Pure Functions (onsdag): tid, tilfeldighet, I/O, immutability og facts vs effects som data.
+6. V4 → V6: skriv samme feilkjede med if og FlatMap, og sammenlign lesbarhet.
 7. Optional: last to snapshots og vis at root-regler og samtidighetskontroll begge trengs.
 
 La studentene kjøre `BookingRulesTests` først. Regeltestene gjentas bevisst i hver versjon og
@@ -34,7 +34,7 @@ V0s `GetQuoteAsync` og `BookAsync` deler `EvaluateBookingAsync`; `CancelAsync` b
 I V1 ligger disse beslutningene i `KareSchedule` og `Booking`, mens tjenesten orkestrerer.
 Spør hva V1 forbedrer når V0 allerede er ryddig. Transaction Script kan fortsatt passe et lite domene.
 
-V0–V5 beskytter ikke hele read-decide-write-flyten mot concurrent writes. Knytt ekte lagring
+V0–V4 og V6 beskytter ikke hele read-decide-write-flyten mot concurrent writes. Knytt ekte lagring
 til tidligere økter om transaksjoner og optimistic concurrency. Steg 90 beholder stale-snapshot-demonstrasjonen.
 
 Undervis ikke CQRS og Event Sourcing som ferdig kode. Bruk [videre-lesning](where-to-go-next.md)

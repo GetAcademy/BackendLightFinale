@@ -1,38 +1,61 @@
-# V5 – Functional Composition
+# V6 – Functional Composition / Railway Oriented Programming
 
-Alle hovedversjonene bruker samme Onion-struktur: `Api → Core`. Core har `ApplicationServices`, `DomainServices` og `DomainModel`. API har HTTP, composition root og konkrete implementasjoner i `Infrastructure`.
+Uke 10 fredag: compose pure functions that can fail using Result<T>, Map and FlatMap.
 
-## Hva er likt?
+## Samme arkitektur som V4
 
-V4s funksjonsgrense, immutable state, events, I/O-shell og regler beholdes.
-Det er fortsatt vanlig C# og egen liten Result-type.
+Core/ApplicationServices/BookingService er fortsatt pure og static.
+Core/DomainModel inneholder domenet og Result. Api/ImperativeShell har BookingHandler,
+BookingEventHandler og Ports; Infrastructure implementerer portene og Program.cs kobler DI.
 
-## Hva endret vi?
+BookingHandler, event handling, Ports, Infrastructure og Program.cs er identiske med V4
+bortsett fra versjonsnamespace. Nåtid, id og state kommer fortsatt utenfra.
+Vi endrer hvordan den rene logikken skrives, ikke arkitekturgrensen.
 
-`Result<T>.Map` transformerer en vellykket verdi. `Bind` kjeder et steg som selv returnerer Result;
-det unngår `Result<Result<T>>`. Bind kalles ofte FlatMap andre steder.
-Book-workflowen leses som Create TimeSlot → ValidateAvailability → Create Booking → ToDecision.
-GetQuote har også en kjede. Cancel har få naturlige steg og beholder en rett frem implementasjon.
-`KareBooking.Composition.Console` viser Func, Action, høyereordensfunksjon, currying,
-partial application og vanlig f/g-komposisjon før bookingpipelinen.
+## Begynn med funksjoner som verdier
 
-## Hvilket problem prøver dette å løse?
+[Konsollen](KareBooking.Composition.Console/Program.cs) viser en Func<int, int> i en variabel.
+Twice tar en funksjon som parameter og returnerer en ny funksjon: en higher-order function.
+Compose kobler A → B → C. Deretter kjøres Kåres Book-pipeline.
 
-I V4 brytes business-flowen av samme failure-sjekk mellom hvert steg.
-Map/Bind lar oss holde flyten synlig og bevare den første feilen. Et senere steg blir aldri kalt ved failure.
-Disse funksjonene fanger ikke exceptions; programmeringsfeil og I/O-feil må håndteres separat.
-Dette er praktisk composition, ikke en forelesning om monader.
+```powershell
+dotnet run --project "06 - Functional Composition/KareBooking.Composition.Console"
+```
 
-## Hva koster løsningen?
+## Fra gjentatte sjekker til en pipeline
 
-Pluss: synlig business-flow og mindre repetert feilhåndtering.
-Minus: studentene må lære forskjellen på Map og Bind; lange lambda-kjeder kan bli vanskeligere å feilsøke.
-Bruk navngitte steg og behold enkel if-kode der det er mer lesbart.
+V4s Book sjekker IsFailure etter TimeSlot.Create, tilgjengelighet og Booking.Create.
+[V6s BookingService](KareBooking.V6.Core/ApplicationServices/BookingService.cs) uttrykker samme kjede:
 
-## Kode å vise
+```csharp
+return TimeSlot.Create(command.Start, command.Hours)
+    .FlatMap(slot => ValidateAvailability(slot, existing, now))
+    .FlatMap(slot => Booking.Create(id, command.CustomerEmail, slot))
+    .Map(ToDecision);
+```
 
-Åpne `KareBooking.V5.Core/DomainModel/Result.cs`, `BookingWorkflow.cs`, `ResultTests.cs` og konsollens `Program.cs`.
-Sammenlign bare Book-metoden med V4 først. Se hvor kontrollflyten stopper ved opptatt tid.
+[Result<T>](KareBooking.V6.Core/DomainModel/Result.cs) har to små metoder:
+- Map tar T → U og pakker den vellykkede verdien i Result<U>.
+- FlatMap tar T → Result<U> og returnerer resultatet direkte, uten Result<Result<U>>.
 
-Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
-Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.
+FlatMap kalles ofte Bind i funksjonell programmering og biblioteker. Vi bruker bare navnet FlatMap.
+Ved Failure kalles ingen av funksjonene; den opprinnelige feilen propageres.
+
+## Railway Oriented Programming
+
+```text
+SUCCESS ───●────────●────────●────► decision
+           │        │        │
+FAILURE ───▼────────▼────────▼────► first error
+```
+
+Success kjører neste funksjon. Failure hopper over resten av success-stegene.
+ResultTests viser feil ved starten og midt i kjeden, og at senere steg ikke kjøres.
+Konsollen viser også en avvist booking. Result + Map + FlatMap er hele mekanismen.
+
+Cancel beholder enkel Result-kode fordi det er tydelig her. GetQuote beholder samme
+valideringsrekkefølge som V4. Composition er et verktøy, ikke et krav til alle metoder.
+Map/FlatMap fanger ikke exceptions og inneholder ingen repository-, payment- eller andre I/O-kall.
+
+Se [V4](../04%20-%20Functional%20Core%20Imperative%20Shell/README.md) og
+[rot-README](../readme.md) for API, forretningsregler og forenklinger.

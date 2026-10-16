@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Value Objects", "02 - 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03 - Domain Events", "03 - Domain Events", "{EC67AE60-53A4-4534-BFAC-74F92C275F2D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 - Pure Functions", "04 - Pure Functions", "{535B8185-F343-4F04-A264-A795CEC283C9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05 - Pure Functions", "05 - Pure Functions", "{535B8185-F343-4F04-A264-A795CEC283C9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05 - Functional Core Imperative Shell", "05 - Functional Core Imperative Shell", "{CCCB3D6F-8FFF-416D-BD18-9272E50765F5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 - Functional Core Imperative Shell", "04 - Functional Core Imperative Shell", "{CCCB3D6F-8FFF-416D-BD18-9272E50765F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "06 - Functional Composition", "06 - Functional Composition", "{B1DE824C-ACEA-42A6-B1EE-FA6C45941CDC}"
 EndProject
@@ -40,21 +40,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V3.Api", "03 - 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V3.Tests", "03 - Domain Events\KareBooking.V3.Tests\KareBooking.V3.Tests.csproj", "{F9A993D1-5A42-4672-90E4-5B20E77A63BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V4.Core", "05 - Functional Core Imperative Shell\KareBooking.V4.Core\KareBooking.V4.Core.csproj", "{E97A3CC1-63B9-48F0-852B-CAD5B33EB2A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V4.Core", "04 - Functional Core Imperative Shell\KareBooking.V4.Core\KareBooking.V4.Core.csproj", "{E97A3CC1-63B9-48F0-852B-CAD5B33EB2A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V4.Api", "05 - Functional Core Imperative Shell\KareBooking.V4.Api\KareBooking.V4.Api.csproj", "{15220E24-DBE6-4802-8057-1A9EBFEA1A73}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V4.Api", "04 - Functional Core Imperative Shell\KareBooking.V4.Api\KareBooking.V4.Api.csproj", "{15220E24-DBE6-4802-8057-1A9EBFEA1A73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V4.Tests", "05 - Functional Core Imperative Shell\KareBooking.V4.Tests\KareBooking.V4.Tests.csproj", "{9CF81341-6F59-4DCC-B33A-7F73014F55EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V4.Tests", "04 - Functional Core Imperative Shell\KareBooking.V4.Tests\KareBooking.V4.Tests.csproj", "{9CF81341-6F59-4DCC-B33A-7F73014F55EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V5.Core", "06 - Functional Composition\KareBooking.V5.Core\KareBooking.V5.Core.csproj", "{8F2ADD59-BA09-4DBC-9FDE-024C249C6F32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V6.Core", "06 - Functional Composition\KareBooking.V6.Core\KareBooking.V6.Core.csproj", "{8F2ADD59-BA09-4DBC-9FDE-024C249C6F32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V5.Api", "06 - Functional Composition\KareBooking.V5.Api\KareBooking.V5.Api.csproj", "{E8A3C8F6-0D10-4E56-A493-C765EFDF8984}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V6.Api", "06 - Functional Composition\KareBooking.V6.Api\KareBooking.V6.Api.csproj", "{E8A3C8F6-0D10-4E56-A493-C765EFDF8984}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V5.Tests", "06 - Functional Composition\KareBooking.V5.Tests\KareBooking.V5.Tests.csproj", "{114886DD-8A82-4D85-B126-AD7C01AD0F10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.V6.Tests", "06 - Functional Composition\KareBooking.V6.Tests\KareBooking.V6.Tests.csproj", "{114886DD-8A82-4D85-B126-AD7C01AD0F10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.PureFunctions.Console", "04 - Pure Functions\KareBooking.PureFunctions.Console\KareBooking.PureFunctions.Console.csproj", "{096FE80E-CEFF-4773-BAD2-D779D6F02FD4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.PureFunctions.Console", "05 - Pure Functions\KareBooking.PureFunctions.Console\KareBooking.PureFunctions.Console.csproj", "{096FE80E-CEFF-4773-BAD2-D779D6F02FD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.PureFunctions.Tests", "04 - Pure Functions\KareBooking.PureFunctions.Tests\KareBooking.PureFunctions.Tests.csproj", "{36153CBB-DA33-4F51-BC33-8D348F08EA65}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.PureFunctions.Tests", "05 - Pure Functions\KareBooking.PureFunctions.Tests\KareBooking.PureFunctions.Tests.csproj", "{36153CBB-DA33-4F51-BC33-8D348F08EA65}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KareBooking.Composition.Console", "06 - Functional Composition\KareBooking.Composition.Console\KareBooking.Composition.Console.csproj", "{4A2459B3-318D-41B6-9B8E-F87D1E360371}"
 EndProject

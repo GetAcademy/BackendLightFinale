@@ -1,6 +1,6 @@
 # V1 – Rich Domain Model
 
-Alle hovedversjonene bruker samme Onion-struktur: `Api → Core`. Core har `ApplicationServices`, `DomainServices` og `DomainModel`. API har HTTP, composition root og konkrete implementasjoner i `Infrastructure`.
+V0–V3 bruker samme Onion-struktur: `Api → Core`. Core har `ApplicationServices`, `DomainServices` og `DomainModel`. API har HTTP, composition root og konkrete implementasjoner i `Infrastructure`.
 
 ## Hva er likt?
 
@@ -37,5 +37,5 @@ Sammenlign med V0. Diskuter hvem som nå vet hvor mye en avbestilling koster.
 
 Se [rot-README](../readme.md) for kjøring, API-port, `.http`-requests og de eksakte forretningsgrensene.
 Testene kjører med NUnit og kontrollerte input. API-ene bruker bare in-memory state og fake eksterne tjenester.
-V0–V5 gjør ikke hele read-decide-write-flyten concurrency-safe. I en ekte persistent applikasjon
+V0–V4 og V6 gjør ikke hele read-decide-write-flyten concurrency-safe. I en ekte persistent applikasjon
 brukes transaksjoner og optimistic concurrency fra tidligere økter i Backend Light.

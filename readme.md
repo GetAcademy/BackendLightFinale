@@ -21,9 +21,9 @@ Value Objects
 ↓
 Domain Events
 ↓
-Pure Functions
-↓
 Functional Core / Imperative Shell
+↓
+Pure Functions
 ↓
 Functional Composition
 ```
@@ -51,31 +51,25 @@ Caset er bevisst konkret og har nok forretningsregler til at forskjellen mellom 
 
 ---
 
-## Onion-strukturen i V0–V5
+## Core før og etter uke 10
 
-Kurset bruker en forenklet Onion Architecture: `Api → Core`.
+V0–V3 bruker Onion Architecture: Api → Core. Core har ApplicationServices,
+DomainServices (interfaces mot omverdenen) og DomainModel. Infrastructure implementerer
+portene, og Program.cs kobler dem med Dependency Injection.
 
-```text
-Core
-├── ApplicationServices   BookingService; BookingEventHandler fra V3
-├── DomainServices        IBookingRepository, IClock, IPaymentGateway, IEmailSender, IAuditLog
-└── DomainModel           domenetyper, regler, Result<T> og BookCommand
+I V3 bruker Core/ApplicationServices/BookingService repository, clock og payment.
+Dependency Inversion beskytter Core mot konkrete infrastructure-klasser.
 
-Api
-├── Program.cs            HTTP og composition root
-└── Infrastructure        konkrete repository-, klokke-, betalings-, e-post- og audit-adaptere
-```
+I V4/V6 går Functional Core videre: business-beslutningen avhenger heller ikke av
+infrastructure-abstraksjoner. Den tidligere effectful Application Service deles i:
 
-DomainServices er kursets navn på Core sine interfaces mot utsiden. Program.cs kobler
-disse til konkrete implementasjoner. Core refererer aldri API, og vi har ikke et eget
-Infrastructure-prosjekt.
+- Core/ApplicationServices/BookingService: pure application/business orchestration med vanlige data.
+- Api/ImperativeShell/BookingHandler: leser state, henter tid/id, kaller Core og utfører effects.
 
-V0s BookingService eier fortsatt mange regler. I V1 flytter forretningskunnskapen til
-DomainModel, innenfor samme struktur. V2 innfører verdiobjekter og V3 domain events.
-I V4/V5 er BookingService en Imperative Shell i Onion Core, mens BookingWorkflow i
-DomainModel er Functional Core. Onion Core beskriver avhengighetsretningen;
-Functional Core beskriver rene beregninger. V5 bruker Map/Bind der V4 bruker vanlig Result-kontrollflyt.
-
+Api/ImperativeShell/Ports eier interfaces, Infrastructure implementerer dem,
+og Program.cs kobler DI. Core har bare ApplicationServices og DomainModel.
+Application Service-konseptet beholdes; den orkestrerer nå domenet med data fremfor services.
+V0–V3s Core er Onion sitt indre prosjekt. V4/V6s Core er også faktisk Functional Core.
 # Forretningsregler
 
 ## Arbeidstid
@@ -203,8 +197,8 @@ Prelude B - Rich Domain without Application Service
 01 - Rich Domain Model
 02 - Value Objects
 03 - Domain Events
-04 - Pure Functions
-05 - Functional Core Imperative Shell
+04 - Functional Core Imperative Shell
+05 - Pure Functions
 06 - Functional Composition
 90 - Optional Aggregate Root
 ```
@@ -449,194 +443,60 @@ Se også:
 
 ---
 
-# 04 – Pure Functions
+# 04 – Functional Core / Imperative Shell
 
-Dette er et kort sidesprang fra API-arkitekturen.
+**Uke 10 mandag:** Separate effects from business decisions.
 
-Prosjekter:
+Kåre Booking fortsetter med samme regler, verdiobjekter, Domain Events, HTTP API og fakes.
+KareBooking.V4.Core/ApplicationServices/BookingService.cs er nå pure og static.
+GetQuote, Book og Cancel får state, tid og id som vanlige parametre; samme input gir samme output.
 
-```text
-KareBooking.PureFunctions.Console
-KareBooking.PureFunctions.Tests
-```
+KareBooking.V4.Api/ImperativeShell/BookingHandler.cs leser repository, henter nåtid,
+genererer id, kaller BookingService og utfører lagring, betaling/refusjon og event-dispatch.
+BookingEventHandler håndterer e-post/audit. Ports ligger i Api/ImperativeShell/Ports.
+Domain Events er fakta; vi lager ingen generell effect-plan i denne versjonen.
 
-Vi sammenligner impure og pure funksjoner og ser blant annet på:
-
-- skjult tid
-- `Random.Shared`
-- `Guid.NewGuid()`
-- fil-I/O
-- mutasjon
-- immutable records
-- `with`
-
-En viktig idé er:
-
-```text
-samme input
-→ samme output
-```
-
-uten observerbare sideeffekter.
-
-Ting som:
-
-```text
-nåværende tidspunkt
-randomness
-generert id
-data lest fra disk
-```
-
-kan betraktes som input til en beregning, selv når inputen opprinnelig er skjult inne i funksjonen.
-
-**Start her:**
-
-```text
-04 - Pure Functions/KareBooking.PureFunctions.Console/Examples.cs
-```
-
-[Les mer om Pure Functions](04%20-%20Pure%20Functions/README.md)
+Book bruker eksplisitte Result-sjekker. Åpne BookingService og BookingHandler side om side.
+[Les mer om V4](04%20-%20Functional%20Core%20Imperative%20Shell/README.md).
 
 ---
 
-# 05 – Functional Core / Imperative Shell
+# 05 – Pure Functions
 
-**Problem:** Kan vi gjøre selve workflowen eksplisitt deterministisk og flytte all I/O til utsiden?
+**Uke 10 onsdag:** Generalize the ideas: pure functions, explicit inputs, immutability and effects as data.
 
-Prosjekter:
+KareBooking.PureFunctions.Console er en selvstendig lab; KareBooking.PureFunctions.Tests
+har små tester med vanlige verdier. Examples.cs viser Price, skjult tid/id/randomness,
+fil-I/O, mutasjon og record + with. Records gir ikke automatisk dyp immutability.
 
-```text
-KareBooking.V4.Api
-KareBooking.V4.Core
-KareBooking.V4.Tests
-```
+Effects.cs skiller BookingCreated (et faktum) fra SaveBooking, ChargePayment og SendEmail
+(planlagte handlinger). En pure Plan returnerer data; en liten interpreter simulerer I/O.
+Ingen ASP.NET, DI eller reell database/nettverk kreves. Composition kommer i V6.
 
-Shell-et skaffer ting som:
-
-```text
-eksisterende bookings
-nåværende tidspunkt
-generert id
-```
-
-og sender dem som vanlige data til DomainModel/BookingWorkflow.
-
-For eksempel:
-
-```text
-data inn
-↓
-BookingWorkflow
-↓
-business decision
-↓
-state + domain events ut
-```
-
-Functional Core (DomainModel/BookingWorkflow) kjenner ikke:
-
-- repository
-- database
-- `IClock`
-- logger
-- DI-container
-- nettverk
-- e-post
-- betaling
-
-Dette betyr **ikke** at hele applikasjonen slutter å bruke Dependency Injection.
-
-Det betyr:
-
-> **Functional Core trenger ikke DI.**
-
-Imperative Shell ligger i Core/ApplicationServices og bruker fortsatt DI for sine I/O-avhengigheter.
-
-**Start her:**
-
-```text
-05 - Functional Core Imperative Shell/KareBooking.V4.Core/DomainModel/BookingWorkflow.cs
-```
-
-Se også testene som kaller workflowen direkte uten I/O-mocks.
-
-[Les mer om V4](05%20-%20Functional%20Core%20Imperative%20Shell/README.md)
+[Les mer om V5](05%20-%20Pure%20Functions/README.md).
 
 ---
 
-# 06 – Functional Composition
+# 06 – Functional Composition / Railway Oriented Programming
 
-**Problem:** `Result<T>` fungerer, men gjentatte failure-sjekker kan skjule selve business-flowen.
+**Uke 10 fredag:** Compose pure functions that can fail using Result<T>, Map and FlatMap.
 
-Prosjekter:
+KareBooking.V6.Core, KareBooking.V6.Api og KareBooking.V6.Tests har samme arkitektur som V4.
+BookingHandler, event handling, Ports og Infrastructure beholdes likt.
+KareBooking.Composition.Console introduserer functions as values, higher-order functions
+og A → B → C før Kåres Book-pipeline.
 
-```text
-KareBooking.V5.Api
-KareBooking.V5.Core
-KareBooking.V5.Tests
-KareBooking.Composition.Console
-```
+Core/ApplicationServices/BookingService komponerer TimeSlot.Create, tilgjengelighet,
+Booking.Create og ToDecision. Result<T>.Map bruker T → U; FlatMap bruker T → Result<U>
+uten nesting. FlatMap kalles ofte Bind i andre biblioteker; her bruker vi bare FlatMap.
 
-Vi introduserer blant annet:
+Success kjører neste steg. Failure hopper over resten og propagerer første feil:
+dette er Railway Oriented Programming. Cancel beholder enkel Result-kode.
+Composition er et verktøy; all I/O ligger fortsatt i shell.
 
-```text
-Func
-Action
-higher-order functions
-currying
-partial application
-functional composition
-```
-
-og deretter:
-
-```text
-Result<T>.Map
-Result<T>.Bind
-```
-
-`Bind` kalles ofte `FlatMap` i andre språk og biblioteker.
-
-Et workflow kan da uttrykkes mer i retning av:
-
-```text
-Create TimeSlot
-↓
-Validate Availability
-↓
-Create Booking
-↓
-Create Decision
-```
-
-uten at den samme:
-
-```text
-if failure → return failure
-```
-
--koden må ligge mellom hvert steg.
-
-Dette er praktisk functional composition, ikke en full introduksjon til funksjonell teori eller monader.
-
-**Start her:**
-
-```text
-06 - Functional Composition/KareBooking.V5.Core/DomainModel/Result.cs
-06 - Functional Composition/KareBooking.V5.Core/DomainModel/BookingWorkflow.cs
-```
-
-og:
-
-```text
-06 - Functional Composition/KareBooking.Composition.Console/Program.cs
-```
-
-[Les mer om V5](06%20-%20Functional%20Composition/README.md)
+[Les mer om V6](06%20-%20Functional%20Composition/README.md).
 
 ---
-
 # 90 – Optional Aggregate Root
 
 Denne versjonen er en **valgfri sidegren**.
@@ -792,7 +652,7 @@ API-ene bruker disse portene:
 | V2 Value Objects | 5102 |
 | V3 Domain Events | 5103 |
 | V4 Functional Core | 5104 |
-| V5 Functional Composition | 5105 |
+| V6 Functional Composition | 5105 |
 | Optional Aggregate Root | 5190 |
 
 Hver API-versjon har sin egen `.http`-fil med ferdige requests.
@@ -872,7 +732,7 @@ State ligger i minnet og forsvinner når API-prosessen restartes.
 
 Dette er bevisst: undervisningen skal fokusere på domain modeling, programmeringsstil og arkitektur – ikke oppsett av eksterne tjenester.
 
-V0–V5 fokuserer på domenemodellering og arkitektur. In-memory-implementasjonene gjør ikke
+V0–V4 og V6 fokuserer på domenemodellering og arkitektur. In-memory-implementasjonene gjør ikke
 hele read-decide-write-flyten concurrency-safe og løser ikke concurrent writes på produksjonsnivå.
 I en ekte persistent applikasjon brukes transaksjoner og optimistic concurrency fra tidligere
 økter i Backend Light. Optional Aggregate Root beholder sin egen demonstrasjon av stale snapshots.
@@ -906,13 +766,13 @@ Blant annet testes:
 - pure functions
 - immutable state
 - `Result<T>.Map`
-- `Result<T>.Bind`
+- `Result<T>.FlatMap`
 - optimistic concurrency i Aggregate Root-versjonen
 
 Ved siste fullstendige verifikasjon:
 
 ```text
-372 / 372 tester bestod (10. oktober 2026)
+372 / 372 tester bestod (16. oktober 2026)
 0 skipped
 ```
 
@@ -929,9 +789,9 @@ En mulig rekkefølge er:
 1. **V0 → V1:** Hvor bør en prisregel bo?
 2. **V1 → V2:** Kan vi representere start kl. 12:37?
 3. **V2 → V3:** Hva er selve domenebeslutningen, og hva er bare en reaksjon?
-4. **Pure Functions:** Hva skjer når tid, randomness og I/O blir eksplisitte input?
-5. **V3 → V4:** Hvor stopper DI? Kan hele workflowen testes uten I/O?
-6. **V4 → V5:** Hvordan kan `Map` og `Bind` gjøre Result-basert kode mer komponerbar?
+4. **V3 → V4 (mandag):** Hvor stopper DI? Kan hele use caset testes uten I/O?
+5. **V5 Pure Functions (onsdag):** Hva er pure functions, immutable data, facts og effects?
+6. **V4 → V6 (fredag):** Hvordan kan `Map` og `FlatMap` gjøre Result-basert kode mer komponerbar?
 7. **Optional Aggregate Root:** Hva beskytter domenemodellen, og hva krever fortsatt concurrency control?
 
 Se:
@@ -942,7 +802,7 @@ Se:
 
 # Actions as Data
 
-V3–V5 bruker domain events som data:
+V3, V4 og V6 bruker domain events som data:
 
 ```text
 BookingCreated
@@ -960,7 +820,7 @@ WriteAuditLog
 
 er noe annet.
 
-Repositoryet viser den implementerte varianten hvor DomainModel produserer domain events og shell/handlers reagerer på dem, og diskuterer også hvordan en høyere workflow kunne produsert eksplisitte effect-data.
+Repositoryet viser den implementerte varianten hvor Core produserer domain events og shell/handlers reagerer på dem, mens V5-labben viser en egen pure Plan og interpreter for SaveBooking, ChargePayment og SendEmail.
 
 Les:
 
@@ -1023,7 +883,7 @@ Blant annet:
 - state + payment + email er ikke gjort distribuert atomisk
 - det finnes ingen outbox
 - det finnes ingen autentisering
-- V0–V5 gjør ikke hele read-decide-write-flyten concurrency-safe
+- V0–V4 og V6 gjør ikke hele read-decide-write-flyten concurrency-safe
 - Aggregate Root-versjonen bruker en enkel versjon på snapshotet for å demonstrere optimistic concurrency
 
 Forenklingene er bevisste.

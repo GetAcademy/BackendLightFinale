@@ -8,24 +8,26 @@ til omverdenen. En returnert beslutning er ikke bevis på at databasen allerede 
 `SendEmail` og `WriteAuditLog` beskriver hva en teknisk interpreter skal gjøre. De er effects,
 ikke domain events. Samme domeneevent kan utløse ulike effects i ulike applikasjoner.
 
-## Variant A – implementert i V3, V4 og V5
+## Variant A – implementert i V3, V4 og V6
 
 ```text
-DomainModel: input → Result(state + domain events)
+Core: input → Result(state + domain events)
 Shell: save state → fake payment/refund → dispatch events
 Handler: BookingCreated → email + audit
          BookingCancelled → email + audit
 ```
 
-DomainModel returnerer altså fakta som data. Handleren tolker dem og utfører handlingene direkte.
-V4/V5 endrer ikke innsendt state og trenger alle nødvendige input (inklusive now og id).
+Core returnerer altså fakta som data. Handleren tolker dem og utfører handlingene direkte.
+V4/V6 endrer ikke innsendt state og trenger alle nødvendige input (inklusive now og id).
 Dette er valgt fordi det lar domenet uttrykke virksomheten uten å bestemme e-posttekst,
 audit-format eller adapter. Handleren er liten og eksplisitt, uten MediatR eller event bus.
 
-## Variant B – bare en liten designillustrasjon
+## Variant B – separat kjørbar lab i V5
 
-En høyere applikasjons-workflow kunne også vært en ren funksjon som oversetter fakta til
-eksplisitte effect-data. Disse typene hører til applikasjonen, ikke bookingdomenet:
+V5s [Effects.cs](../05%20-%20Pure%20Functions/KareBooking.PureFunctions.Console/Effects.cs)
+viser en pure Plan som returnerer SaveBooking, ChargePayment og SendEmail.
+BookingCreated er en separat fact-type og arver ikke Effect. Interpret simulerer I/O med Console.
+En ren funksjon kunne også oversatt fakta til effect-data, som denne korte designillustrasjonen:
 
 ```csharp
 abstract record Effect;
@@ -41,8 +43,8 @@ static IReadOnlyList<Effect> Plan(BookingCreated fact) =>
 
 Shell kan tolke hvert effect med switch og sine adapters. Dette gjør også planen testbar uten
 å sende noe, men gir ekstra typer og en interpreter for et lite eksempel. Derfor er variant A
-implementert; B illustrerer hvordan actions as data kan tas ett steg videre uten å kalle
-SendEmail et domain event. Ingen komplett alternativ arkitektur er nødvendig for poenget.
+implementert i Kåre V4/V6; B holdes i V5-labben. SendEmail er aldri et domain event.
+Ingen komplett alternativ arkitektur er nødvendig for poenget.
 
 ## Konsistens og forenklinger
 
@@ -56,7 +58,7 @@ events/effect-plan i en durable outbox i samme transaksjon som state hvis leveri
 robust. Dette er diskusjonspunkter, ikke skjult implementerte egenskaper. Kjøring av domain
 events gjør ikke viktig synkron betalingskonsistens automatisk trygg.
 
-V0–V5 fokuserer på domenemodellering og arkitektur og gjør ikke hele read-decide-write-flyten
+V0–V4 og V6 fokuserer på domenemodellering og arkitektur og gjør ikke hele read-decide-write-flyten
 concurrency-safe. Repository returnerer kopier (eller immutable snapshots), så en domenemutasjon
 ikke endrer lagret state før SaveAsync. Ved ekte lagring brukes transaksjoner og optimistic
 concurrency fra tidligere Backend Light-økter. Et quote er bare et øyeblikksbilde og reserverer ingen tid.
