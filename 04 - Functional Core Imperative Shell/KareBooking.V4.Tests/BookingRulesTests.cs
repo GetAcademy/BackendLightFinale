@@ -83,8 +83,7 @@ public sealed class BookingRulesTests
     public async Task Cancelled_bookings_release_the_slot()
     {
         var existing = await Create(monday);
-        await Cancel(existing, early);
-        existing = existing.AsCancelled();
+        existing = existing.Cancel(early).Value.Booking;
         Assert.That((await Quote(new BookCommand("ada@example.test", monday, 2), early, existing)).IsSuccess, Is.True);
     }
 

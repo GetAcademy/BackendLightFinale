@@ -11,7 +11,7 @@ Ikke presenter hver nye teknikk som en automatisk forbedring.
 | V3, steg 03 | Tjenesten kjenner hver følgehendelse | Domain Events | V3.Core/DomainModel/DomainEvents.cs; V3.Core/ApplicationServices/BookingEventHandler.cs | Er SendEmail et forretningsfaktum? Hva om audit feiler? |
 | V4, steg 04, mandag | Application Service bruker tjenester mot utsiden | Functional Core / Imperative Shell | V4.Core/ApplicationServices/BookingService.cs; V4.Api/ImperativeShell/BookingHandler.cs | Hvor stopper DI, og hvem skaffer now/id? |
 | V5, steg 05, onsdag | Generalisere skillet mellom beregninger og effects | Pure functions / immutability / facts og effects som data | PureFunctions.Console/Examples.cs, Effects.cs | Hvorfor er BookingCreated et faktum, mens SaveBooking er en planlagt handling? |
-| V6, steg 06, fredag | Samme feilsjekk avbryter flyten mellom steg | Map / FlatMap / Railway Oriented Programming | V6.Core/DomainModel/Result.cs; V6.Core/ApplicationServices/BookingService.cs; Composition.Console | Hvorfor trenger et steg som kan feile FlatMap, mens ToDecision bruker Map? |
+| V6, steg 06, fredag | Samme feilsjekk avbryter flyten mellom steg | Map / FlatMap / Railway Oriented Programming | V6.Core/DomainModel/Result.cs; V6.Core/ApplicationServices/BookingService.cs; Composition.Console | Hvorfor trenger et steg som kan feile FlatMap, mens prisberegningen bruker Map? |
 | Optional, steg 90 | En entity beskytter ikke invariants mellom søsken | Aggregate Root + optimistic save | Aggregates.Core/KareSchedule.cs; AggregateTests | Hvorfor kan to gyldige roots likevel kollidere ved save? |
 
 Stiene i tabellen er forkortet; prosjektene ligger i de navngitte solution folders.

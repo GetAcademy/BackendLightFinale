@@ -454,6 +454,8 @@ GetQuote, Book og Cancel får state, tid og id som vanlige parametre; samme inpu
 KareBooking.V4.Api/ImperativeShell/BookingHandler.cs leser repository, henter nåtid,
 genererer id, kaller BookingService og utfører lagring, betaling/refusjon og event-dispatch.
 BookingEventHandler håndterer e-post/audit. Ports ligger i Api/ImperativeShell/Ports.
+KareSchedule eier kalenderreglene; Booking eier creation/cancellation, refusjon og Domain Events.
+BookingService orkestrerer domenet. Vi splitter den gamle Application Service langs effect-grensen.
 Domain Events er fakta; vi lager ingen generell effect-plan i denne versjonen.
 
 Book bruker eksplisitte Result-sjekker. Åpne BookingService og BookingHandler side om side.
@@ -486,12 +488,13 @@ BookingHandler, event handling, Ports og Infrastructure beholdes likt.
 KareBooking.Composition.Console introduserer functions as values, higher-order functions
 og A → B → C før Kåres Book-pipeline.
 
-Core/ApplicationServices/BookingService komponerer TimeSlot.Create, tilgjengelighet,
-Booking.Create og ToDecision. Result<T>.Map bruker T → U; FlatMap bruker T → Result<U>
+Core/ApplicationServices/BookingService komponerer KareSchedule.ValidateSlot og
+Booking.Create. GetQuote kombinerer KareSchedule.ValidateQuoteSlot og Money.ForHours.
+Result<T>.Map bruker T → U; FlatMap bruker T → Result<U>
 uten nesting. FlatMap kalles ofte Bind i andre biblioteker; her bruker vi bare FlatMap.
 
 Success kjører neste steg. Failure hopper over resten og propagerer første feil:
-dette er Railway Oriented Programming. Cancel beholder enkel Result-kode.
+dette er Railway Oriented Programming. Cancel delegerer direkte til Booking.Cancel.
 Composition er et verktøy; all I/O ligger fortsatt i shell.
 
 [Les mer om V6](06%20-%20Functional%20Composition/README.md).

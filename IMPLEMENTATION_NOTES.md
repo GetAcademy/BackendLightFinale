@@ -23,7 +23,7 @@ Infrastructure implementerer portene; Program.cs kobler DI i API-et.
 
 V4 og V6 har samme struktur. API-kildefilene er identiske etter normalisering av versjonsnamespace.
 V4 bruker eksplisitte Result-sjekker; V6 bruker Map og FlatMap i Book/GetQuote.
-Cancel er fortsatt enkel Result-kode. V6s GetQuote validerer e-post først, som V4.
+Cancel delegerer direkte til Booking.Cancel. V6s GetQuote validerer e-post først, som V4.
 
 ## Laboratoriene
 
@@ -74,3 +74,25 @@ Verifisert 16. oktober 2026:
 - Begge konsolllabbene kjørte uten feil.
 - Alle 26 solution-prosjekter, prosjektreferanser og lokale Markdown-lenker finnes.
 - API-kildefilene i V4/V6 er identiske bortsett fra versjonsnamespace.
+
+## Korrigering av business-rule ownership, 16. oktober 2026
+
+Vi splitter den gamle Application Service langs effect-grensen, og beholder Rich Domain Model.
+KareSchedule er gjeninnført i V4/V6 med V3s kalenderansvar: ValidateSlot, GetQuote og Book.
+ValidateQuoteSlot trekker ut quote-valideringen slik at V6 kan komponere den med Money.ForHours.
+TimeSlot beholder arbeidsdag/arbeidstid/varighet; BookingCalendar beholder fristberegningen.
+Booking eier creation, cancellation eligibility og refusjon. BookingCreated oppstår i Create,
+BookingCancelled i Cancel. Cancel bruker with og endrer ikke originalen.
+Den offentlige AsCancelled-snarveien er fjernet; tester bruker nå validert Cancel.
+
+V4s BookingService viser eksplisitt Result-sjekk mellom ValidateSlot og Booking.Create.
+V6 bruker FlatMap mellom de samme operasjonene og Map mellom ValidateQuoteSlot og Money.ForHours.
+Ingen regler eller events konstrueres i Application Service. Cancel er ett domenekall.
+DomainModel-filene er identiske mellom V4/V6 etter namespace-normalisering, bortsett fra Result.
+Sammenlignet med V3 er regelansvaret beholdt, med immutable Booking og uttrukket quote-validering.
+
+BookingHandler, Ports, Infrastructure, V5, V0–V3, Prelude og Aggregate Root er urørt.
+Build: alle 26 prosjekter, 0 feil, 0 advarsler. Tester: 372 bestått, 0 skipped.
+Begge API-er er startet og kontrollert via HTTP: quote 800, booking 201, overlap 400,
+refund 800, lagret cancellation, gjentatt cancellation 400 og vellykket rebooking.
+Testhost og HTTP-kontroll krevde kjøring utenfor sandboxen; midlertidige API-prosesser er stoppet.

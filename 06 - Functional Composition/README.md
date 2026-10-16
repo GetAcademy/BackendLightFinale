@@ -24,14 +24,13 @@ dotnet run --project "06 - Functional Composition/KareBooking.Composition.Consol
 
 ## Fra gjentatte sjekker til en pipeline
 
-V4s Book sjekker IsFailure etter TimeSlot.Create, tilgjengelighet og Booking.Create.
+V4s Book sjekker IsFailure etter KareSchedule.ValidateSlot før Booking.Create.
 [V6s BookingService](KareBooking.V6.Core/ApplicationServices/BookingService.cs) uttrykker samme kjede:
 
 ```csharp
-return TimeSlot.Create(command.Start, command.Hours)
-    .FlatMap(slot => ValidateAvailability(slot, existing, now))
-    .FlatMap(slot => Booking.Create(id, command.CustomerEmail, slot))
-    .Map(ToDecision);
+var schedule = new KareSchedule(existing);
+return schedule.ValidateSlot(command, now)
+    .FlatMap(slot => Booking.Create(id, command.CustomerEmail, slot));
 ```
 
 [Result<T>](KareBooking.V6.Core/DomainModel/Result.cs) har to små metoder:
@@ -53,9 +52,25 @@ Success kjører neste funksjon. Failure hopper over resten av success-stegene.
 ResultTests viser feil ved starten og midt i kjeden, og at senere steg ikke kjøres.
 Konsollen viser også en avvist booking. Result + Map + FlatMap er hele mekanismen.
 
-Cancel beholder enkel Result-kode fordi det er tydelig her. GetQuote beholder samme
+Cancel delegerer direkte til Booking.Cancel; en pipeline ville vært kunstig. GetQuote beholder samme
 valideringsrekkefølge som V4. Composition er et verktøy, ikke et krav til alle metoder.
 Map/FlatMap fanger ikke exceptions og inneholder ingen repository-, payment- eller andre I/O-kall.
 
 Se [V4](../04%20-%20Functional%20Core%20Imperative%20Shell/README.md) og
 [rot-README](../readme.md) for API, forretningsregler og forenklinger.
+
+## Samme Rich Domain Model
+
+Alle DomainModel-filer er identiske med V4 bortsett fra namespace og Map/FlatMap i Result.
+KareSchedule eier frist og availability; TimeSlot eier arbeidsdag/arbeidstid og varighet.
+Booking.Create og Booking.Cancel eier henholdsvis opprettelse og immutable cancellation,
+inkludert refusjonsregler og produksjon av BookingCreated/BookingCancelled.
+BookingService inneholder ingen av disse reglene og konstruerer ingen events.
+
+GetQuote komponerer KareSchedule.ValidateQuoteSlot med Money.ForHours via Map.
+ValidateQuoteSlot beholder e-postvalidering og kalenderregler i domenet; Money eier prisen.
+Det er de samme operasjonene som V4s KareSchedule.GetQuote utfører med eksplisitt Result-kode.
+Book bruker FlatMap fordi Booking.Create allerede returnerer Result<BookingDecision>.
+Pipeline-formen komponerer domenemodellen; den erstatter den ikke.
+
+BookingHandler eier fortsatt reads/effects; Ports ligger fortsatt utenfor Core.
