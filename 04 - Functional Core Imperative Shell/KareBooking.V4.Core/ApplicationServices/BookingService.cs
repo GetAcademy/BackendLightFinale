@@ -4,8 +4,7 @@ namespace KareBooking.V4.Core.ApplicationServices;
 
 public static class BookingService
 {
-    public static Result<BookingDecision> Book(BookCommand command, IReadOnlyList<Booking> existing,
-        DateTime now, Guid id)
+    public static Result<BookingDecision> Book(BookCommand command, IReadOnlyList<Booking> existing, DateTime now, Guid id)
     {
         var schedule = new KareSchedule(existing);
         var slot = schedule.ValidateSlot(command, now);

@@ -4,8 +4,7 @@ using KareBooking.V4.Api.ImperativeShell.Ports;
 
 namespace KareBooking.V4.Api.ImperativeShell;
 
-public sealed class BookingHandler(
-    IBookingRepository repository, IClock clock, IPaymentGateway payment, BookingEventHandler events)
+public sealed class BookingHandler(IBookingRepository repository, IClock clock, IPaymentGateway payment, BookingEventHandler events)
 {
     public async Task<Result<Money>> GetQuoteAsync(BookCommand command)
     {
